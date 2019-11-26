@@ -28,6 +28,10 @@ Here are some examples of the types of expressions currently supported:
 
 A default direction can be applied using `WithDirection()` for ambiguous expressions such as `sunday`, or `september`. By default `naturaldate.Past` is used, so they will be equivalent to `last sunday` and `last september`.
 
+## Notes
+
+This package is does not have the goal of parsing all possible date formats and timestamps, I recommend you attempt parsing those first and then falling back on this package to provide "natural language" support. 
+
 ---
 
 [![GoDoc](https://godoc.org/github.com/tj/go-naturaldate?status.svg)](https://godoc.org/github.com/tj/go-naturaldate)
