@@ -17,8 +17,8 @@ Expr
   <- NOW
   / RelativeMinutes
   / RelativeHours
-  / RelativeDays
-  / RelativeWeeks
+  / RelativeDays (AT? RelativeTime)?
+  / RelativeWeeks (AT? RelativeTime)?
   / RelativeWeekdays (AT? RelativeTime)?
   / RelativeMonth Date? (AT? RelativeTime)?
   / RelativeYear
