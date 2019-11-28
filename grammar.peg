@@ -11,45 +11,125 @@ type parser Peg {
 }
 
 Query
-  <- _ Expr _ EOF
+  <- _ Expr+ EOF
 
 Expr
   <- NOW
   / RelativeMinutes
   / RelativeHours
-  / RelativeDays (AT? RelativeTime)?
-  / RelativeWeeks (AT? RelativeTime)?
-  / RelativeWeekdays (AT? RelativeTime)?
-  / RelativeMonth Date? (AT? RelativeTime)?
+  / RelativeDays
+  / RelativeWeeks
+  / RelativeWeekdays
+  / RelativeMonth
   / RelativeYear
-  / RelativeTime
+  / Date
+  / Time
+  / Word
 
-RelativeYear
-  <- Number YEARS AGO
+RelativeMinutes
+  <- Number MINUTES AGO
     {
-      p.t = truncateDay(p.t.AddDate(-p.number, 0, 0)) 
+      p.t = p.t.Add(-time.Minute * time.Duration(p.number))
     }
-  / Number YEARS FROM_NOW
+  / (Number MINUTES FROM_NOW / In Number? MINUTES FROM_NOW?)
     {
-      p.t = truncateDay(p.t.AddDate(p.number, 0, 0)) 
+      p.t = p.t.Add(time.Minute * time.Duration(p.number))
     }
-  / LAST YEARS
+  / Last Number? MINUTES
     {
-      p.t = time.Date(p.t.Year() - 1, 1, 1, 0, 0, 0, 0, p.t.Location())
+      p.t = p.t.Add(-time.Minute * time.Duration(p.number))
     }
-  / NEXT YEARS
+  / Next Number? MINUTES
     {
-      p.t = time.Date(p.t.Year() + 1, 1, 1, 0, 0, 0, 0, p.t.Location())
+      p.t = p.t.Add(time.Minute * time.Duration(p.number))
+    }
+  / Number MINUTES
+    { 
+      p.t = p.t.Add(p.withDirection(time.Minute) * time.Duration(p.number))
+    }
+
+RelativeHours
+  <- Number HOURS AGO
+    { 
+      p.t = p.t.Add(-time.Hour * time.Duration(p.number))
+    }
+  / (Number HOURS FROM_NOW / In Number? HOURS FROM_NOW?)
+    { 
+      p.t = p.t.Add(time.Hour * time.Duration(p.number))
+    }
+  / Last Number? HOURS
+    {
+      p.t = p.t.Add(-time.Hour * time.Duration(p.number))
+    }
+  / Next Number? HOURS
+    {
+      p.t = p.t.Add(time.Hour * time.Duration(p.number))
+    }
+  / Number HOURS
+    { 
+      p.t = p.t.Add(p.withDirection(time.Hour) * time.Duration(p.number))
+    }
+
+RelativeDays
+  <- Number DAYS AGO
+    { 
+      p.t = truncateDay(p.t.Add(-day * time.Duration(p.number)))
+    }
+  / (Number DAYS FROM_NOW / In Number? DAYS FROM_NOW?)
+    { 
+      p.t = p.t.Add(day * time.Duration(p.number))
+    }
+  / Last Number? DAYS
+    {
+      p.t = truncateDay(p.t.Add(-day * time.Duration(p.number)))
+    }
+  / Next Number? DAYS
+    {
+      p.t = truncateDay(p.t.Add(day * time.Duration(p.number)))
+    }
+  / Number DAYS
+    { 
+      p.t = truncateDay(p.t.Add(p.withDirection(day) * time.Duration(p.number)))
+    }
+
+RelativeWeeks
+  <- Number WEEKS AGO
+    {
+      p.t = truncateDay(p.t.Add(-week * time.Duration(p.number))) 
+    }
+  / (Number WEEKS FROM_NOW / In Number? WEEKS FROM_NOW?)
+    {
+      p.t = p.t.Add(week * time.Duration(p.number))
+    }
+  / Last Number? WEEKS
+    {
+      p.t = truncateDay(p.t.Add(-week * time.Duration(p.number))) 
+    }
+  / Next Number? WEEKS
+    {
+      p.t = truncateDay(p.t.Add(week * time.Duration(p.number))) 
+    }
+  / Number WEEKS
+    {
+      p.t = truncateDay(p.t.Add(p.withDirection(week) * time.Duration(p.number))) 
     }
 
 RelativeMonth
   <- Number MONTHS AGO
     {
-      p.t = truncateDay(p.t.AddDate(0, -p.number, 0))
+      p.t = p.t.AddDate(0, -p.number, 0)
     }
-  / Number MONTHS FROM_NOW
+  / (Number MONTHS FROM_NOW / In Number? MONTHS FROM_NOW?)
     {
-      p.t = truncateDay(p.t.AddDate(0, p.number, 0))
+      p.t = p.t.AddDate(0, p.number, 0)
+    }
+  / Last Number? MONTHS
+    {
+      p.t = p.t.AddDate(0, -p.number, 0)
+    }
+  / Next Number? MONTHS
+    {
+      p.t = p.t.AddDate(0, p.number, 0)
     }
   / LAST Month
     {
@@ -68,13 +148,32 @@ RelativeMonth
       }
     }
 
-Date
-  <- (Number Ordinal?
-      {
-        year, month, _ := p.t.Date()
-        p.t = time.Date(year, month, p.number, 0, 0, 0, 0, p.t.Location())
-      }
-    )?
+RelativeYear
+  <- Number YEARS AGO
+    {
+      p.t = p.t.AddDate(-p.number, 0, 0)
+    }
+  / (Number YEARS FROM_NOW / In Number? YEARS FROM_NOW?)
+    {
+      p.t = p.t.AddDate(p.number, 0, 0)
+    }
+  / Last Number? YEARS
+    {
+      p.t = p.t.AddDate(-p.number, 0, 0)
+    }
+  / Next Number? YEARS
+    {
+      p.t = p.t.AddDate(p.number, 0, 0)
+    }
+  / LAST YEARS
+    {
+      p.t = time.Date(p.t.Year() - 1, 1, 1, 0, 0, 0, 0, p.t.Location())
+    }
+  / NEXT YEARS
+    {
+      p.t = time.Date(p.t.Year() + 1, 1, 1, 0, 0, 0, 0, p.t.Location())
+    }
+
 
 RelativeWeekdays
   <- TODAY
@@ -102,51 +201,20 @@ RelativeWeekdays
       }
     }
 
-RelativeMinutes
-  <- Number MINUTES AGO
+Date
+  <- (Number Ordinal / Last Number? Number)
     {
-      p.t = p.t.Add(-time.Minute * time.Duration(p.number))
-    }
-  / Number MINUTES
-    { 
-      p.t = p.t.Add(p.withDirection(time.Minute) * time.Duration(p.number))
-    }
-
-RelativeHours
-  <- Number HOURS AGO
-    { 
-      p.t = p.t.Add(-time.Hour * time.Duration(p.number))
-    }
-  / Number HOURS
-    { 
-      p.t = p.t.Add(p.withDirection(time.Hour) * time.Duration(p.number))
+      t := p.t
+      year, month, _ := t.Date()
+      hour, min, sec := t.Clock()
+      p.t = time.Date(year, month, p.number, hour, min, sec, 0, t.Location())
     }
 
-RelativeDays
-  <- Number DAYS AGO
-    { 
-      p.t = truncateDay(p.t.Add(-day * time.Duration(p.number)))
-    }
-  / Number DAYS
-    { 
-      p.t = truncateDay(p.t.Add(p.withDirection(day) * time.Duration(p.number)))
-    }
+Time
+  <- Clock12Hour
+   / Clock24Hour 
 
-RelativeWeeks
-  <- Number WEEKS AGO
-    {
-      p.t = truncateDay(p.t.Add(-week * time.Duration(p.number))) 
-    }
-  / Number WEEKS
-    {
-      p.t = truncateDay(p.t.Add(p.withDirection(week) * time.Duration(p.number))) 
-    }
-
-RelativeTime
-  <- Relative12Hour
-   / Relative24Hour 
-
-Relative12Hour
+Clock12Hour
   <- Number
     {
       year, month, day := p.t.Date()
@@ -162,7 +230,7 @@ Relative12Hour
     (Minutes Seconds?)?
     PM
 
-Relative24Hour
+Clock24Hour
   <- Number
     {
       year, month, day := p.t.Date()
@@ -224,11 +292,20 @@ Month
   / 'november' _  { p.month = time.November }
   / 'december' _  { p.month = time.December }
 
+In
+  <- IN          { p.number = 1}
+
+Last
+  <- LAST        { p.number = 1 }
+
+Next
+  <- NEXT        { p.number = 1 }
+
 Ordinal
-  <- 'st' _
-  / 'nd' _
-  / 'rd' _
-  / 'th' _
+  <- ('st' / 'nd' / 'rd' / 'th') _
+
+Word
+  <- [a-z]+ _
 
 YEARS      <- 'year' 's'? _
 MONTHS     <- 'month' 's'? _
@@ -239,12 +316,12 @@ MINUTES    <- 'minute' 's'? _
 YESTERDAY  <- 'yesterday' _
 TODAY      <- 'today' _
 AGO        <- 'ago' _
-FROM_NOW   <- ('from now' / 'from today') _
+FROM_NOW   <- 'from now' _
 NOW        <- 'now' _
 AM         <- 'am' _
 PM         <- 'pm' _
-AT         <- 'at' _
 NEXT       <- 'next' _
+IN         <- ('in an' / 'in a' / 'in') _
 LAST       <- ('last' / 'past' / 'previous') _
 
 _

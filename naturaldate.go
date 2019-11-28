@@ -61,6 +61,7 @@ func Parse(s string, ref time.Time, options ...Option) (time.Time, error) {
 	}
 
 	p.Execute()
+	// p.PrintSyntaxTree()
 	return p.t, nil
 }
 
@@ -93,7 +94,9 @@ func nextMonth(t time.Time, month time.Month) time.Time {
 	if month-t.Month() <= 0 {
 		y++
 	}
-	return time.Date(y, month, 1, 0, 0, 0, 0, t.Location())
+	_, _, day := t.Date()
+	hour, min, sec := t.Clock()
+	return time.Date(y, month, day, hour, min, sec, 0, t.Location())
 }
 
 // prevMonth returns the next month relative to time t.
@@ -102,7 +105,9 @@ func prevMonth(t time.Time, month time.Month) time.Time {
 	if t.Month()-month <= 0 {
 		y--
 	}
-	return time.Date(y, month, 1, 0, 0, 0, 0, t.Location())
+	_, _, day := t.Date()
+	hour, min, sec := t.Clock()
+	return time.Date(y, month, day, hour, min, sec, 0, t.Location())
 }
 
 // truncateDay returns a date truncated to the day.

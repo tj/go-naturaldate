@@ -4,7 +4,7 @@ Natural date time parsing for Go. This package was designed for parsing human-fr
 
 ## Examples
 
-Here are some examples of the types of expressions currently supported:
+Here are some examples of the types of expressions currently supported, arbitrary text is currently ignored.
 
 - now
 - today
@@ -23,14 +23,14 @@ Here are some examples of the types of expressions currently supported:
 - 10am
 - 10:05pm
 - 10:05:22pm
+- Restart the server in 5 days from now
+- Remind me on the 25th of December at 7:30am
+- Message me in two weeks
+- See the [tests](./naturaldate_test.go) for more examples
 
 ## Direction
 
 A default direction can be applied using `WithDirection()` for ambiguous expressions such as `sunday`, or `september`. By default `naturaldate.Past` is used, so they will be equivalent to `last sunday` and `last september`.
-
-## Notes
-
-This package is does not have the goal of parsing all possible date formats and timestamps, I recommend you attempt parsing those first and then falling back on this package to provide "natural language" support. 
 
 ---
 
