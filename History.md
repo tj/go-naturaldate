@@ -1,4 +1,9 @@
 
+v1.2.0 / 2019-11-28
+===================
+
+  * refactor to require less structured input. Closes #9
+
 v1.1.0 / 2019-11-27
 ===================
 
