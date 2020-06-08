@@ -40,8 +40,6 @@ A default direction can be applied using `WithDirection()` for ambiguous express
 
 ## Sponsors
 
-## Sponsors
-
 This project is sponsored by [CTO.ai](https://cto.ai/), making it easy for development teams to create and share workflow automations without leaving the command line.
 
 [![](https://apex-software.imgix.net/github/sponsors/cto.png)](https://cto.ai/)
