@@ -184,6 +184,10 @@ RelativeWeekdays
     {
       p.t = truncateDay(p.t.Add(-day))
     }
+  / TOMORROW
+    {
+      p.t = truncateDay(p.t.Add(+day))
+    }
   / LAST Weekday
     {
       p.t = truncateDay(prevWeekday(p.t, p.weekday))
@@ -314,6 +318,7 @@ DAYS       <- 'day' 's'? _
 HOURS      <- 'hour' 's'? _
 MINUTES    <- 'minute' 's'? _
 YESTERDAY  <- 'yesterday' _
+TOMORROW   <- 'tomorrow' _
 TODAY      <- 'today' _
 AGO        <- 'ago' _
 FROM_NOW   <- 'from now' _
