@@ -111,6 +111,12 @@ var pastCases = []struct {
 	{`yesterday at 10am`, `2019-11-24 10:00:00 +0000 UTC`},
 	{`yesterday at 10:15am`, `2019-11-24 10:15:00 +0000 UTC`},
 
+	// tomorrow
+	{`tomorrow`, `2019-11-26 00:00:00 +0000 UTC`},
+	{`tomorrow 10am`, `2019-11-26 10:00:00 +0000 UTC`},
+	{`tomorrow at 10am`, `2019-11-26 10:00:00 +0000 UTC`},
+	{`tomorrow at 10:15am`, `2019-11-26 10:15:00 +0000 UTC`},
+
 	// past weekdays
 	{`sunday`, `2019-11-24 00:00:00 +0000 UTC`},
 	{`monday`, `2019-11-18 00:00:00 +0000 UTC`},
