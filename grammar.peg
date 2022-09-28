@@ -24,7 +24,6 @@ Expr
   / RelativeYear
   / Date
   / Time
-  / Word
 
 RelativeMinutes
   <- Number MINUTES AGO
@@ -307,9 +306,6 @@ Next
 
 Ordinal
   <- ('st' / 'nd' / 'rd' / 'th') _
-
-Word
-  <- [a-z]+ _
 
 YEARS      <- 'year' 's'? _
 MONTHS     <- 'month' 's'? _
