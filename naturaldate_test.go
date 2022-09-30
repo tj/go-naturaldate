@@ -183,6 +183,19 @@ func TestParse_goodTimes(t *testing.T) {
 			{`1 hour ago`, now.Add(-time.Hour)},
 			{`6 hours ago`, now.Add(-6 * time.Hour)},
 			{`1 hour from now`, now.Add(time.Hour)},
+
+			// dates with times
+			{`3 days ago at 11:25am`, dateAtTime(now.Add(-3*24*time.Hour), 11, 25, 0)},
+			{`2 weeks ago at 8am`, dateAtTime(now.Add(-2*7*24*time.Hour), 8, 0, 0)},
+			{`today at 10am`, dateAtTime(now, 10, 0, 0)},
+			{`yesterday 10am`, dateAtTime(now.AddDate(0, 0, -1), 10, 0, 0)},
+			{`yesterday at 10am`, dateAtTime(now.AddDate(0, 0, -1), 10, 0, 0)},
+			{`yesterday at 10:15am`, dateAtTime(now.AddDate(0, 0, -1), 10, 15, 0)},
+			{`tomorrow 10am`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
+			{`10am tomorrow`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
+			{`tomorrow at 10am`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
+			{`tomorrow at 10:15am`, dateAtTime(now.AddDate(0, 0, 1), 10, 15, 0)},
+			{`next December 23rd AT 5:25 PM`, nextMonthDayTime(now, time.December, 23, 12+5, 25, 0)},
 		}
 
 		for _, c := range cases {
@@ -212,13 +225,11 @@ func TestParse_goodDays(t *testing.T) {
 			{`one day ago`, now.Add(-24 * time.Hour)},
 			{`1 day ago`, now.Add(-24 * time.Hour)},
 			{`3 days ago`, now.Add(-3 * 24 * time.Hour)},
-			{`3 days ago at 11:25am`, dateAtTime(now.Add(-3*24*time.Hour), 11, 25, 0)},
 			{`1 day from now`, now.Add(24 * time.Hour)},
 
 			// weeks
 			{`1 week ago`, now.Add(-7 * 24 * time.Hour)},
 			{`2 weeks ago`, now.Add(-2 * 7 * 24 * time.Hour)},
-			{`2 weeks ago at 8am`, dateAtTime(now.Add(-2*7*24*time.Hour), 8, 0, 0)},
 			{`next week`, now.Add(7 * 24 * time.Hour)},
 			{`a week from now`, now.Add(7 * 24 * time.Hour)},
 			{`a week from today`, now.Add(7 * 24 * time.Hour)},
@@ -228,13 +239,11 @@ func TestParse_goodDays(t *testing.T) {
 			{`1 month ago`, now.AddDate(0, -1, 0)},
 			{`last month`, now.AddDate(0, -1, 0)},
 			{`next month`, now.AddDate(0, 1, 0)},
-			{`1 month ago at 9:30am`, dateAtTime(now.AddDate(0, -1, 0), 9, 30, 0)},
 			{`2 months ago`, now.AddDate(0, -2, 0)},
 			{`12 months ago`, now.AddDate(0, -12, 0)},
 			{`a month from now`, now.AddDate(0, 1, 0)},
 			{`1 month from now`, now.AddDate(0, 1, 0)},
 			{`2 months from now`, now.AddDate(0, 2, 0)},
-			{`12 months from now at 6am`, dateAtTime(now.AddDate(0, 12, 0), 6, 0, 0)},
 
 			// years
 			{`last year`, now.AddDate(-1, 0, 0)},
@@ -246,19 +255,12 @@ func TestParse_goodDays(t *testing.T) {
 
 			// today
 			{`today`, now},
-			{`today at 10am`, dateAtTime(now, 10, 0, 0)},
 
 			// yesterday
 			{`yesterday`, now.AddDate(0, 0, -1)},
-			{`yesterday 10am`, dateAtTime(now.AddDate(0, 0, -1), 10, 0, 0)},
-			{`yesterday at 10am`, dateAtTime(now.AddDate(0, 0, -1), 10, 0, 0)},
-			{`yesterday at 10:15am`, dateAtTime(now.AddDate(0, 0, -1), 10, 15, 0)},
 
 			// tomorrow
 			{`tomorrow`, now.AddDate(0, 0, 1)},
-			{`tomorrow 10am`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
-			{`tomorrow at 10am`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
-			{`tomorrow at 10:15am`, dateAtTime(now.AddDate(0, 0, 1), 10, 15, 0)},
 
 			// past weekdays
 			{`last sunday`, prevWeekday(now, time.Sunday)},
@@ -287,9 +289,6 @@ func TestParse_goodDays(t *testing.T) {
 			{"january, 2017", time.Date(2017, 1, 1, 0, 0, 0, 0, now.Location())},
 			{"april 3 2017", time.Date(2017, 4, 3, 0, 0, 0, 0, now.Location())},
 			{"april 3, 2017", time.Date(2017, 4, 3, 0, 0, 0, 0, now.Location())},
-
-			// case sensitivity
-			{`next December 23rd AT 5:25 PM`, nextMonthDayTime(now, time.December, 23, 12+5, 25, 0)},
 
 			{`previous tuesday`, prevWeekday(now, time.Tuesday)},
 			{`last january`, prevMonth(now, time.January)},
