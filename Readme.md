@@ -6,7 +6,7 @@ Natural date time parsing for Go. This package was designed for parsing human-fr
 
 ## Examples
 
-Here are some examples of the types of expressions currently supported, arbitrary text is currently ignored.
+Here are some examples of the types of expressions currently supported:
 
 - now
 - today
@@ -25,9 +25,6 @@ Here are some examples of the types of expressions currently supported, arbitrar
 - 10am
 - 10:05pm
 - 10:05:22pm
-- Restart the server in 5 days from now
-- Remind me on the 25th of December at 7:30am
-- Message me in two weeks
 - See the [tests](./naturaldate_test.go) for more examples
 
 ## Direction
