@@ -15,14 +15,6 @@ Query
 
 Expr
   <- NOW
-  / NEXT MINUTE
-    {
-      p.t = p.t.Add(time.Minute)
-    }
-  / LAST MINUTE
-    {
-      p.t = p.t.Add(-time.Minute)
-    }
   / RelativeMinutes
   / RelativeMinutes
   / RelativeHours
@@ -51,9 +43,13 @@ RelativeMinutes
     {
       p.t = p.t.Add(time.Minute * time.Duration(p.number))
     }
-  / Number MINUTES
-    { 
-      p.t = p.t.Add(p.withDirection(time.Minute) * time.Duration(p.number))
+  / NEXT MINUTE
+    {
+      p.t = p.t.Add(time.Minute)
+    }
+  / LAST MINUTE
+    {
+      p.t = p.t.Add(-time.Minute)
     }
 
 RelativeHours
@@ -65,11 +61,11 @@ RelativeHours
     { 
       p.t = p.t.Add(time.Hour * time.Duration(p.number))
     }
-  / Last HOUR
+  / LAST HOUR
     {
       p.t = p.t.Add(-time.Hour)
     }
-  / Next HOUR
+  / NEXT HOUR
     {
       p.t = p.t.Add(time.Hour)
     }
