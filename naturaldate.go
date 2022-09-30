@@ -122,3 +122,10 @@ func truncateDay(t time.Time) time.Time {
 	y, m, d := t.Date()
 	return time.Date(y, m, d, 0, 0, 0, 0, t.Location())
 }
+
+// truncateDayIfNoTime truncates p.t to the day if p has no time.
+func truncateDayIfNoTime(p *parser) {
+	if !p.hasTime {
+		p.t = truncateDay(p.t)
+	}
+}

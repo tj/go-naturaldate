@@ -8,6 +8,7 @@ type parser Peg {
   month time.Month
   weekday time.Weekday
   direction int
+  hasTime bool
 }
 
 Query
@@ -19,8 +20,11 @@ Expr
   / RelativeMinutes
   / RelativeHours
   / RelativeDays (AT? Time)?
+  / Time? RelativeDays
   / RelativeWeeks (AT? Time)?
+  / Time? RelativeWeeks
   / RelativeWeekdays (AT? Time)?
+  / Time? RelativeWeekdays
   / RelativeMonth
   / RelativeYear
   / Date (AT? Time)?
@@ -72,81 +76,97 @@ RelativeHours
 
 RelativeDays
   <- Number DAYS AGO
-    { 
-      p.t = truncateDay(p.t.Add(-day * time.Duration(p.number)))
+    {
+      p.t = p.t.Add(-day * time.Duration(p.number))
+      truncateDayIfNoTime(p)
     }
   / (Number DAYS FROM_NOW / In Number? DAYS FROM_NOW?)
     { 
       p.t = p.t.Add(day * time.Duration(p.number))
+      truncateDayIfNoTime(p)
     }
 
 RelativeWeeks
   <- Number WEEKS AGO
     {
-      p.t = truncateDay(p.t.Add(-week * time.Duration(p.number))) 
+      p.t = p.t.Add(-week * time.Duration(p.number))
+      truncateDayIfNoTime(p)
     }
   / (Number WEEKS FROM_NOW / In Number? WEEKS FROM_NOW?)
     {
       p.t = p.t.Add(week * time.Duration(p.number))
+      truncateDayIfNoTime(p)
     }
 
 RelativeMonth
   <- Number MONTHS AGO
     {
       p.t = p.t.AddDate(0, -p.number, 0)
+      truncateDayIfNoTime(p)
     }
   / (Number MONTHS FROM_NOW / In Number? MONTHS FROM_NOW?)
     {
       p.t = p.t.AddDate(0, p.number, 0)
+      truncateDayIfNoTime(p)
     }
   / LAST Month
     {
       p.t = prevMonth(p.t, p.month)
+      truncateDayIfNoTime(p)
     }
   / NEXT Month
     {
       p.t = nextMonth(p.t, p.month)
+      truncateDayIfNoTime(p)
     }
 
 RelativeYear
   <- Number YEARS AGO
     {
       p.t = p.t.AddDate(-p.number, 0, 0)
+      truncateDayIfNoTime(p)
     }
   / (Number YEARS FROM_NOW / In Number? YEARS FROM_NOW?)
     {
       p.t = p.t.AddDate(p.number, 0, 0)
+      truncateDayIfNoTime(p)
     }
   / LAST YEARS
     {
       p.t = time.Date(p.t.Year() - 1, 1, 1, 0, 0, 0, 0, p.t.Location())
+      truncateDayIfNoTime(p)
     }
   / NEXT YEARS
     {
       p.t = time.Date(p.t.Year() + 1, 1, 1, 0, 0, 0, 0, p.t.Location())
+      truncateDayIfNoTime(p)
     }
 
 
 RelativeWeekdays
   <- TODAY
     {
-      p.t = truncateDay(p.t)
+      truncateDayIfNoTime(p)
     }
   / YESTERDAY 
     {
-      p.t = truncateDay(p.t.Add(-day))
+      p.t = p.t.Add(-day)
+      truncateDayIfNoTime(p)
     }
   / TOMORROW
     {
-      p.t = truncateDay(p.t.Add(+day))
+      p.t = p.t.Add(+day)
+      truncateDayIfNoTime(p)
     }
   / LAST Weekday
     {
-      p.t = truncateDay(prevWeekday(p.t, p.weekday))
+      p.t = prevWeekday(p.t, p.weekday)
+      truncateDayIfNoTime(p)
     }
   / NEXT Weekday
     {
-      p.t = truncateDay(nextWeekday(p.t, p.weekday))
+      p.t = nextWeekday(p.t, p.weekday)
+      truncateDayIfNoTime(p)
     }
 
 Date
@@ -156,6 +176,7 @@ Date
       year, month, _ := t.Date()
       hour, min, sec := t.Clock()
       p.t = time.Date(year, month, p.number, hour, min, sec, 0, t.Location())
+      truncateDayIfNoTime(p)
     }
 
 Time
@@ -167,6 +188,7 @@ Clock12Hour
     {
       year, month, day := p.t.Date()
       p.t = time.Date(year, month, day, p.number, 0, 0, 0, p.t.Location())
+      p.hasTime = true
     }
     (Minutes Seconds?)?
     AM
@@ -174,6 +196,7 @@ Clock12Hour
     {
       year, month, day := p.t.Date()
       p.t = time.Date(year, month, day, p.number + 12, 0, 0, 0, p.t.Location())
+      p.hasTime = true
     }
     (Minutes Seconds?)?
     PM
@@ -183,6 +206,7 @@ Clock24Hour
     {
       year, month, day := p.t.Date()
       p.t = time.Date(year, month, day, p.number, 0, 0, 0, p.t.Location())
+      p.hasTime = true
     }
     (Minutes Seconds?)?
 
