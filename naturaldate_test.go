@@ -196,6 +196,10 @@ func TestParse_goodTimes(t *testing.T) {
 			{`tomorrow at 10am`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
 			{`tomorrow at 10:15am`, dateAtTime(now.AddDate(0, 0, 1), 10, 15, 0)},
 			{`next December 23rd AT 5:25 PM`, nextMonthDayTime(now, time.December, 23, 12+5, 25, 0)},
+			{`last sunday at 5:30pm`, dateAtTime(prevWeekday(now, time.Sunday), 12+5, 30, 0)},
+			{`next sunday at 22:45`, dateAtTime(nextWeekday(now, time.Sunday), 22, 45, 0)},
+			{`next sunday at 22:45`, dateAtTime(nextWeekday(now, time.Sunday), 22, 45, 0)},
+			{`November 3rd, 1986 at 4:30pm`, time.Date(1986, 11, 3, 12+4, 30, 0, 0, now.Location())},
 		}
 
 		for _, c := range cases {
@@ -225,6 +229,7 @@ func TestParse_goodDays(t *testing.T) {
 			{`one day ago`, now.Add(-24 * time.Hour)},
 			{`1 day ago`, now.Add(-24 * time.Hour)},
 			{`3 days ago`, now.Add(-3 * 24 * time.Hour)},
+			{`three days ago`, now.Add(-3 * 24 * time.Hour)},
 			{`1 day from now`, now.Add(24 * time.Hour)},
 
 			// weeks
@@ -250,6 +255,7 @@ func TestParse_goodDays(t *testing.T) {
 			{`next year`, truncateYear(now.AddDate(1, 0, 0))},
 			{`one year ago`, truncateYear(now.AddDate(-1, 0, 0))},
 			{`one year from now`, truncateYear(now.AddDate(1, 0, 0))},
+			{`one year from today`, truncateYear(now.AddDate(1, 0, 0))},
 			{`two years ago`, truncateYear(now.AddDate(-2, 0, 0))},
 			{`2 years ago`, truncateYear(now.AddDate(-2, 0, 0))},
 
