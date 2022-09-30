@@ -1,0 +1,12 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: golang:1.19
+    working_directory: /go/src/github.com/ijt/go-naturaldate
+    steps:
+      - checkout
+      - run: go vet ./...
+      - run: go test -v ./...
+
+
