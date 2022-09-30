@@ -13,7 +13,7 @@ type parser Peg {
 }
 
 Query
-  <- _ Expr+ EOF
+  <- _ Expr
 
 Expr
   <- NOW
@@ -346,6 +346,3 @@ Whitespace
 
 EOL
   <- '\r\n' / '\n' / '\r'
-
-EOF
-  <- !.
