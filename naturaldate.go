@@ -71,6 +71,7 @@ func (p *parser) withDirection(d time.Duration) time.Duration {
 }
 
 // prevWeekday returns the previous week day relative to time t.
+// TODO: test this with t = some sunday, day = time.Sunday.
 func prevWeekday(t time.Time, day time.Weekday) time.Time {
 	d := t.Weekday() - day
 	if d <= 0 {
@@ -80,12 +81,18 @@ func prevWeekday(t time.Time, day time.Weekday) time.Time {
 }
 
 // nextWeekday returns the next week day relative to time t.
+// TODO: test this with t = some sunday, day = time.Sunday.
 func nextWeekday(t time.Time, day time.Weekday) time.Time {
 	d := day - t.Weekday()
 	if d <= 0 {
 		d += 7
 	}
 	return t.Add(time.Hour * 24 * time.Duration(d))
+}
+
+func nextMonthDayTime(t time.Time, month time.Month, day int, hour int, min int, sec int) time.Time {
+	t = nextMonth(t, month)
+	return time.Date(t.Year(), t.Month(), day, hour, min, sec, 0, t.Location())
 }
 
 // nextMonth returns the next month relative to time t.
