@@ -206,6 +206,7 @@ Seconds
 
 Number
   <- < [0-9]+ > _ { n, _ := strconv.Atoi(text); p.number = n }
+  / 'a' 'n'? _    { p.number = 1 }
   / 'one' _       { p.number = 1 }
   / 'two' _       { p.number = 2 }
   / 'three' _     { p.number = 3 }
