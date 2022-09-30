@@ -1,5 +1,6 @@
 # Go Natural Date
 
+[![CircleCI](https://circleci.com/gh/ijt/go-naturaldate/tree/master.svg?style=shield)](https://circleci.com/gh/ijt/go-naturaldate/tree/master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ijt/go-naturaldate)](https://goreportcard.com/report/github.com/ijt/go-naturaldate)
 [![GoDoc](https://godoc.org/github.com/tj/go-naturaldate?status.svg)](https://godoc.org/github.com/tj/go-naturaldate)
 ![](https://img.shields.io/badge/license-MIT-blue.svg)
