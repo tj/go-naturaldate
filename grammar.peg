@@ -253,7 +253,7 @@ MONTHS     <- 'month' 's'? _
 WEEKS      <- 'week' 's'? _
 DAYS       <- 'day' 's'? _
 HOURS      <- 'hour' 's'? _
-MINUTES    <- 'minutes' _
+MINUTES    <- 'minute' 's'? _
 MINUTE     <- 'minute' _
 YESTERDAY  <- 'yesterday' _
 TOMORROW   <- 'tomorrow' _
