@@ -65,18 +65,6 @@ RelativeHours
     { 
       p.t = p.t.Add(time.Hour * time.Duration(p.number))
     }
-  / Last Number? HOURS
-    {
-      p.t = p.t.Add(-time.Hour * time.Duration(p.number))
-    }
-  / Next Number? HOURS
-    {
-      p.t = p.t.Add(time.Hour * time.Duration(p.number))
-    }
-  / Number HOURS
-    { 
-      p.t = p.t.Add(p.withDirection(time.Hour) * time.Duration(p.number))
-    }
 
 RelativeDays
   <- Number DAYS AGO
@@ -86,18 +74,6 @@ RelativeDays
   / (Number DAYS FROM_NOW / In Number? DAYS FROM_NOW?)
     { 
       p.t = p.t.Add(day * time.Duration(p.number))
-    }
-  / Last Number? DAYS
-    {
-      p.t = truncateDay(p.t.Add(-day * time.Duration(p.number)))
-    }
-  / Next Number? DAYS
-    {
-      p.t = truncateDay(p.t.Add(day * time.Duration(p.number)))
-    }
-  / Number DAYS
-    { 
-      p.t = truncateDay(p.t.Add(p.withDirection(day) * time.Duration(p.number)))
     }
 
 RelativeWeeks
@@ -109,18 +85,6 @@ RelativeWeeks
     {
       p.t = p.t.Add(week * time.Duration(p.number))
     }
-  / Last Number? WEEKS
-    {
-      p.t = truncateDay(p.t.Add(-week * time.Duration(p.number))) 
-    }
-  / Next Number? WEEKS
-    {
-      p.t = truncateDay(p.t.Add(week * time.Duration(p.number))) 
-    }
-  / Number WEEKS
-    {
-      p.t = truncateDay(p.t.Add(p.withDirection(week) * time.Duration(p.number))) 
-    }
 
 RelativeMonth
   <- Number MONTHS AGO
@@ -128,14 +92,6 @@ RelativeMonth
       p.t = p.t.AddDate(0, -p.number, 0)
     }
   / (Number MONTHS FROM_NOW / In Number? MONTHS FROM_NOW?)
-    {
-      p.t = p.t.AddDate(0, p.number, 0)
-    }
-  / Last Number? MONTHS
-    {
-      p.t = p.t.AddDate(0, -p.number, 0)
-    }
-  / Next Number? MONTHS
     {
       p.t = p.t.AddDate(0, p.number, 0)
     }
@@ -147,14 +103,6 @@ RelativeMonth
     {
       p.t = nextMonth(p.t, p.month)
     }
-  / Month
-    {
-      if p.direction < 0 {
-        p.t = prevMonth(p.t, p.month)
-      } else {
-        p.t = nextMonth(p.t, p.month)
-      }
-    }
 
 RelativeYear
   <- Number YEARS AGO
@@ -162,14 +110,6 @@ RelativeYear
       p.t = p.t.AddDate(-p.number, 0, 0)
     }
   / (Number YEARS FROM_NOW / In Number? YEARS FROM_NOW?)
-    {
-      p.t = p.t.AddDate(p.number, 0, 0)
-    }
-  / Last Number? YEARS
-    {
-      p.t = p.t.AddDate(-p.number, 0, 0)
-    }
-  / Next Number? YEARS
     {
       p.t = p.t.AddDate(p.number, 0, 0)
     }

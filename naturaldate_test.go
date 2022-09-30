@@ -144,12 +144,7 @@ func TestParse_bad(t *testing.T) {
 		t.Run(c.input, func(t *testing.T) {
 			_, err := Parse(c.input, base)
 			if err == nil {
-				t.Errorf("err is %v, want nil", err)
-			}
-
-			_, err = Parse(c.input, base, WithDirection(Future))
-			if err == nil {
-				t.Errorf("future: err is %v, want nil", err)
+				t.Errorf("err is nil")
 			}
 		})
 	}
