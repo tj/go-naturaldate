@@ -43,10 +43,7 @@ Date
       }
 
 Year
-    <- Number
-        {
-            p.year = p.number
-        }
+  <- < [12][0-9][0-9][0-9] > _ { n, _ := strconv.Atoi(text); p.year = n }
 
 RelativeMinutes
   <- Number MINUTES AGO

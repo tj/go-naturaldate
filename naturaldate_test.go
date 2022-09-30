@@ -140,9 +140,9 @@ func TestParse_bad(t *testing.T) {
 	for _, c := range badCases {
 		t.Run(c.input, func(t *testing.T) {
 			now := time.Time{}
-			_, err := Parse(c.input, now)
+			v, err := Parse(c.input, now)
 			if err == nil {
-				t.Errorf("err is nil")
+				t.Errorf("err is nil, result is %v", v)
 			}
 		})
 	}
