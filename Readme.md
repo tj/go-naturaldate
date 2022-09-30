@@ -21,11 +21,9 @@ Here are some examples of the types of expressions currently supported:
 - one year from now
 - yesterday at 10am
 - last sunday at 5:30pm
-- sunday at 22:45
+- next sunday at 22:45
 - next January
 - last February
-- December 25th at 7:30am
-- 10am
-- 10:05pm
-- 10:05:22pm
+- next December 25th at 7:30am
+- November 3rd, 1986 at 4:30pm
 - See the [tests](./naturaldate_test.go) for more examples
