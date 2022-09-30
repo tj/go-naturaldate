@@ -312,7 +312,7 @@ YESTERDAY  <- 'yesterday' _
 TOMORROW   <- 'tomorrow' _
 TODAY      <- 'today' _
 AGO        <- 'ago' _
-FROM_NOW   <- 'from now' _
+FROM_NOW   <- ('from now' / 'from today') _
 NOW        <- 'now' _
 AM         <- 'am' _
 PM         <- 'pm' _
