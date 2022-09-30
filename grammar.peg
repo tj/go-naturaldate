@@ -18,9 +18,9 @@ Expr
   / RelativeMinutes
   / RelativeMinutes
   / RelativeHours
-  / RelativeDays
-  / RelativeWeeks
-  / RelativeWeekdays
+  / RelativeDays (AT? Time)?
+  / RelativeWeeks (AT? Time)?
+  / RelativeWeekdays (AT? Time)?
   / RelativeMonth
   / RelativeYear
   / Date (AT? Time)?
