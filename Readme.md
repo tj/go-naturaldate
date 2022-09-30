@@ -1,6 +1,8 @@
 # Go Natural Date
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/ijt/go-naturaldate)](https://goreportcard.com/report/github.com/ijt/go-naturaldate)
+[![GoDoc](https://godoc.org/github.com/tj/go-naturaldate?status.svg)](https://godoc.org/github.com/tj/go-naturaldate)
+![](https://img.shields.io/badge/license-MIT-blue.svg)
 
 Natural date time parsing for Go. This package was designed for parsing human-friendly relative date/time ranges in [Apex Logs](https://apex.sh/logs/)' command-line log search.
 
@@ -27,15 +29,7 @@ Here are some examples of the types of expressions currently supported:
 - 10:05:22pm
 - See the [tests](./naturaldate_test.go) for more examples
 
-## Direction
-
-A default direction can be applied using `WithDirection()` for ambiguous expressions such as `sunday`, or `september`. By default `naturaldate.Past` is used, so they will be equivalent to `last sunday` and `last september`.
-
 ---
-
-[![GoDoc](https://godoc.org/github.com/tj/go-naturaldate?status.svg)](https://godoc.org/github.com/tj/go-naturaldate)
-![](https://img.shields.io/badge/license-MIT-blue.svg)
-![](https://img.shields.io/badge/status-stable-green.svg)
 
 ## Sponsors
 
