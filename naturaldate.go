@@ -14,44 +14,12 @@ var day = time.Hour * 24
 // week duration.
 var week = time.Hour * 24 * 7
 
-// Direction is the direction used for ambiguous expressions.
-type Direction int
-
-// Directions available.
-const (
-	Past Direction = iota
-	Future
-)
-
-// Option function.
-type Option func(*parser)
-
-// WithDirection sets the direction used for ambiguous expressions. By default
-// the Past direction is used, so "sunday" will be the previous Sunday, rather
-// than the next Sunday.
-func WithDirection(d Direction) Option {
-	return func(p *parser) {
-		switch d {
-		case Past:
-			p.direction = -1
-		case Future:
-			p.direction = 1
-		default:
-			panic("unhandled direction")
-		}
-	}
-}
-
 // Parse query string.
-func Parse(s string, ref time.Time, options ...Option) (time.Time, error) {
+func Parse(s string, ref time.Time) (time.Time, error) {
 	p := &parser{
 		Buffer:    strings.ToLower(s),
 		direction: -1,
 		t:         ref,
-	}
-
-	for _, o := range options {
-		o(p)
 	}
 
 	p.Init()
