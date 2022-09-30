@@ -27,6 +27,7 @@ Expr
   / Time? RelativeWeeks
   / RelativeWeekdays (AT? Time)?
   / Time? RelativeWeekdays
+  / RelativeMonthDay (AT? Time)?
   / RelativeMonth
   / RelativeYear
   / Date (AT? Time)?
@@ -124,6 +125,16 @@ RelativeWeeks
     {
       p.t = p.t.Add(-week)
       truncateDayIfNoTime(p)
+    }
+
+RelativeMonthDay
+  <- NEXT Month DayOfMonth
+    {
+      p.t = nextMonthDayTime(p.t, p.month, p.dayOfMonth, 0, 0, 0)
+    }
+  / LAST Month DayOfMonth
+    {
+      p.t = prevMonthDayTime(p.t, p.month, p.dayOfMonth, 0, 0, 0)
     }
 
 RelativeMonth

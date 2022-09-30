@@ -90,8 +90,15 @@ func nextWeekday(t time.Time, day time.Weekday) time.Time {
 	return t.Add(time.Hour * 24 * time.Duration(d))
 }
 
+// nextMonthDayTime returns the next month relative to time t, with given day of month and time of day.
 func nextMonthDayTime(t time.Time, month time.Month, day int, hour int, min int, sec int) time.Time {
 	t = nextMonth(t, month)
+	return time.Date(t.Year(), t.Month(), day, hour, min, sec, 0, t.Location())
+}
+
+// prevMonthDayTime returns the previous month relative to time t, with given day of month and time of day.
+func prevMonthDayTime(t time.Time, month time.Month, day int, hour int, min int, sec int) time.Time {
+	t = prevMonth(t, month)
 	return time.Date(t.Year(), t.Month(), day, hour, min, sec, 0, t.Location())
 }
 
@@ -102,8 +109,7 @@ func nextMonth(t time.Time, month time.Month) time.Time {
 		y++
 	}
 	_, _, day := t.Date()
-	hour, min, sec := t.Clock()
-	return time.Date(y, month, day, hour, min, sec, 0, t.Location())
+	return time.Date(y, month, day, 0, 0, 0, 0, t.Location())
 }
 
 // prevMonth returns the next month relative to time t.
@@ -113,8 +119,7 @@ func prevMonth(t time.Time, month time.Month) time.Time {
 		y--
 	}
 	_, _, day := t.Date()
-	hour, min, sec := t.Clock()
-	return time.Date(y, month, day, hour, min, sec, 0, t.Location())
+	return time.Date(y, month, day, 0, 0, 0, 0, t.Location())
 }
 
 // truncateDay returns a date truncated to the day.
