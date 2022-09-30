@@ -164,6 +164,8 @@ func TestParse_good(t *testing.T) {
 			{`now`, now},
 
 			// minutes
+			{`a minute from now`, now.Add(time.Minute)},
+			{`a minute ago`, now.Add(-time.Minute)},
 			{`next minute`, now.Add(time.Minute)},
 			{`last minute`, now.Add(-time.Minute)},
 			{`1 minute ago`, now.Add(-time.Minute)},
@@ -174,6 +176,8 @@ func TestParse_good(t *testing.T) {
 			{`two minutes from now`, now.Add(2 * time.Minute)},
 
 			// hours
+			{`an hour from now`, now.Add(time.Hour)},
+			{`an hour ago`, now.Add(-time.Hour)},
 			{`last hour`, now.Add(-time.Hour)},
 			{`next hour`, now.Add(time.Hour)},
 			{`1 hour ago`, now.Add(-time.Hour)},
@@ -182,6 +186,7 @@ func TestParse_good(t *testing.T) {
 
 			// days
 			{`next day`, now.Add(24 * time.Hour)},
+			{`one day ago`, now.Add(-24 * time.Hour)},
 			{`1 day ago`, now.Add(-24 * time.Hour)},
 			{`3 days ago`, now.Add(-3 * 24 * time.Hour)},
 			{`3 days ago at 11:25am`, dateAtTime(now.Add(-3*24*time.Hour), 11, 25, 0)},
@@ -192,14 +197,18 @@ func TestParse_good(t *testing.T) {
 			{`2 weeks ago`, now.Add(-2 * 7 * 24 * time.Hour)},
 			{`2 weeks ago at 8am`, dateAtTime(now.Add(-2*7*24*time.Hour), 8, 0, 0)},
 			{`next week`, now.Add(7 * 24 * time.Hour)},
+			{`a week from now`, now.Add(7 * 24 * time.Hour)},
+			{`a week from today`, now.Add(7 * 24 * time.Hour)},
 
 			// months
+			{`a month ago`, now.AddDate(0, -1, 0)},
 			{`1 month ago`, now.AddDate(0, -1, 0)},
 			{`last month`, now.AddDate(0, -1, 0)},
 			{`next month`, now.AddDate(0, 1, 0)},
 			{`1 month ago at 9:30am`, dateAtTime(now.AddDate(0, -1, 0), 9, 30, 0)},
 			{`2 months ago`, now.AddDate(0, -2, 0)},
 			{`12 months ago`, now.AddDate(0, -12, 0)},
+			{`a month from now`, now.AddDate(0, 1, 0)},
 			{`1 month from now`, now.AddDate(0, 1, 0)},
 			{`2 months from now`, now.AddDate(0, 2, 0)},
 			{`12 months from now at 6am`, dateAtTime(now.AddDate(0, 12, 0), 6, 0, 0)},
