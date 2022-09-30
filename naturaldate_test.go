@@ -149,14 +149,14 @@ func TestParse_bad(t *testing.T) {
 }
 
 // Test parsing on cases that are expected to parse successfully.
-func TestParse_good(t *testing.T) {
+func TestParse_goodTimes(t *testing.T) {
 	var baseTimes = []time.Time{
 		time.Date(2022, 9, 29, 2, 48, 33, 123, time.Local),
 		time.Date(2022, 9, 29, 2, 48, 33, 123, time.UTC),
 	}
 
 	for _, now := range baseTimes {
-		var pastCases = []struct {
+		var cases = []struct {
 			Input    string
 			WantTime time.Time
 		}{
@@ -183,9 +183,32 @@ func TestParse_good(t *testing.T) {
 			{`1 hour ago`, now.Add(-time.Hour)},
 			{`6 hours ago`, now.Add(-6 * time.Hour)},
 			{`1 hour from now`, now.Add(time.Hour)},
+		}
 
+		for _, c := range cases {
+			t.Run(c.Input, func(t *testing.T) {
+				v, err := Parse(c.Input, now)
+				if err != nil {
+					t.Fatal(err)
+				}
+				assert.Equal(t, c.WantTime, v)
+			})
+		}
+	}
+}
+
+func TestParse_goodDays(t *testing.T) {
+	var baseTimes = []time.Time{
+		time.Date(2022, 9, 29, 2, 48, 33, 123, time.Local),
+		time.Date(2022, 9, 29, 2, 48, 33, 123, time.UTC),
+	}
+
+	for _, now := range baseTimes {
+		var cases = []struct {
+			Input    string
+			WantTime time.Time
+		}{
 			// days
-			{`next day`, now.Add(24 * time.Hour)},
 			{`one day ago`, now.Add(-24 * time.Hour)},
 			{`1 day ago`, now.Add(-24 * time.Hour)},
 			{`3 days ago`, now.Add(-3 * 24 * time.Hour)},
@@ -273,13 +296,14 @@ func TestParse_good(t *testing.T) {
 			{`next january`, nextMonth(now, time.January)},
 		}
 
-		for _, c := range pastCases {
+		for _, c := range cases {
 			t.Run(c.Input, func(t *testing.T) {
 				v, err := Parse(c.Input, now)
 				if err != nil {
 					t.Fatal(err)
 				}
-				assert.Equal(t, c.WantTime, v)
+				want := truncateDay(c.WantTime)
+				assert.Equal(t, want, v)
 			})
 		}
 	}
