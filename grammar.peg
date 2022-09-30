@@ -9,7 +9,6 @@ type parser Peg {
   month time.Month
   dayOfMonth int
   weekday time.Weekday
-  direction int
   hasTime bool
 }
 

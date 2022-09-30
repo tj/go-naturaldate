@@ -401,7 +401,6 @@ type parser struct {
 	month      time.Month
 	dayOfMonth int
 	weekday    time.Weekday
-	direction  int
 	hasTime    bool
 
 	Buffer string

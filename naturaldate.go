@@ -17,9 +17,8 @@ var week = time.Hour * 24 * 7
 // Parse query string.
 func Parse(s string, ref time.Time) (time.Time, error) {
 	p := &parser{
-		Buffer:    strings.ToLower(s),
-		direction: -1,
-		t:         ref,
+		Buffer: strings.ToLower(s),
+		t:      ref,
 	}
 
 	p.Init()
@@ -31,11 +30,6 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	p.Execute()
 	// p.PrintSyntaxTree()
 	return p.t, nil
-}
-
-// withDirection returns duration with direction.
-func (p *parser) withDirection(d time.Duration) time.Duration {
-	return d * time.Duration(p.direction)
 }
 
 // prevWeekday returns the previous week day relative to time t.
