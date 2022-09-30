@@ -154,12 +154,10 @@ RelativeYear
   / LAST YEAR
     {
       p.t = time.Date(p.t.Year() - 1, 1, 1, 0, 0, 0, 0, p.t.Location())
-      truncateDayIfNoTime(p)
     }
   / NEXT YEAR
     {
       p.t = time.Date(p.t.Year() + 1, 1, 1, 0, 0, 0, 0, p.t.Location())
-      truncateDayIfNoTime(p)
     }
 
 
@@ -196,7 +194,6 @@ Date
       year, month, _ := t.Date()
       hour, min, sec := t.Clock()
       p.t = time.Date(year, month, p.number, hour, min, sec, 0, t.Location())
-      truncateDayIfNoTime(p)
     }
 
 Time
