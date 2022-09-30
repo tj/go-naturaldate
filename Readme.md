@@ -5,7 +5,10 @@
 [![GoDoc](https://godoc.org/github.com/tj/go-naturaldate?status.svg)](https://godoc.org/github.com/tj/go-naturaldate)
 ![](https://img.shields.io/badge/license-MIT-blue.svg)
 
-Natural date time parsing for Go. This package was designed for parsing human-friendly relative date/time ranges in [Apex Logs](https://apex.sh/logs/)' command-line log search.
+Natural date time parsing for Go. This package was forked from github.com/tj/go-naturaldate with the following goals:
+
+1. Support use within parser combinator packages such as github.com/ijt/goparsify. As part of this, parsing must be more strict: the date must come at the beginning of the string although there can be additional text after it. Also, the substring matched by the parser must be made available.
+2. Minimize the amount of ambiguity accepted. Instead of assuming that "Tuesday" means last Tuesday or next Tuesday as in github.com/tj/go-naturaldate, just require additional context so it's clear.
 
 ## Examples
 
