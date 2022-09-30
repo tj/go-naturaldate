@@ -5,7 +5,9 @@ import "time"
 type parser Peg {
   t time.Time
   number int
+  year int
   month time.Month
+  dayOfMonth int
   weekday time.Weekday
   direction int
   hasTime bool
@@ -29,6 +31,22 @@ Expr
   / RelativeYear
   / Date (AT? Time)?
   / Time ON? Date
+
+Date
+  <- ( Month DayOfMonth? COMMA? Year / Year Month DayOfMonth? / DayOfMonth? Month COMMA? Year )
+      {
+         dom := p.dayOfMonth
+         if dom == 0 {
+            dom = 1
+         }
+         p.t = time.Date(p.year, p.month, dom, 0, 0, 0, 0, p.t.Location())
+      }
+
+Year
+    <- Number
+        {
+            p.year = p.number
+        }
 
 RelativeMinutes
   <- Number MINUTES AGO
@@ -185,14 +203,7 @@ RelativeWeekdays
       truncateDayIfNoTime(p)
     }
 
-Date
-  <- (Number Ordinal / Last Number? Number)
-    {
-      t := p.t
-      year, month, _ := t.Date()
-      hour, min, sec := t.Clock()
-      p.t = time.Date(year, month, p.number, hour, min, sec, 0, t.Location())
-    }
+DayOfMonth <- Number Ordinal? { p.dayOfMonth = p.number }
 
 Time
   <- Clock12Hour
@@ -316,6 +327,7 @@ IN         <- ('in an' / 'in a' / 'in') _
 LAST       <- ('last' / 'past' / 'previous') _
 AT         <- 'at' _
 ON         <- 'on' _
+COMMA      <- ',' _
 _
   <- Whitespace*
 
