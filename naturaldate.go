@@ -4,6 +4,7 @@
 package naturaldate
 
 import (
+	"fmt"
 	"strings"
 	"time"
 )
@@ -21,7 +22,9 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		t:      ref,
 	}
 
-	p.Init()
+	if err := p.Init(); err != nil {
+		return time.Time{}, fmt.Errorf("initializing parser: %w", err)
+	}
 
 	if err := p.Parse(); err != nil {
 		return time.Time{}, err
