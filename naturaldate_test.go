@@ -8,9 +8,6 @@ import (
 	"github.com/tj/assert"
 )
 
-// base time.
-var base = time.Unix(1574687238, 0).UTC()
-
 func dateAtTime(dateFrom time.Time, hour int, min int, sec int) time.Time {
 	t := dateFrom
 	return time.Date(t.Year(), t.Month(), t.Day(), hour, min, sec, 0, t.Location())
@@ -142,7 +139,8 @@ func TestParse_bad(t *testing.T) {
 	}
 	for _, c := range badCases {
 		t.Run(c.input, func(t *testing.T) {
-			_, err := Parse(c.input, base)
+			now := time.Time{}
+			_, err := Parse(c.input, now)
 			if err == nil {
 				t.Errorf("err is nil")
 			}
@@ -151,124 +149,124 @@ func TestParse_bad(t *testing.T) {
 }
 
 // Test parsing on cases that are expected to parse successfully.
-func TestParse_good(test *testing.T) {
+func TestParse_good(t *testing.T) {
 	var baseTimes = []time.Time{
 		time.Date(2022, 9, 29, 2, 48, 33, 123, time.Local),
 		time.Date(2022, 9, 29, 2, 48, 33, 123, time.UTC),
 	}
 
-	for _, t := range baseTimes {
+	for _, now := range baseTimes {
 		var pastCases = []struct {
 			Input    string
 			WantTime time.Time
 		}{
 			// now
-			{`now`, t},
+			{`now`, now},
 
 			// minutes
-			{`next minute`, t.Add(time.Minute)},
-			{`last minute`, t.Add(-time.Minute)},
-			{`1 minute ago`, t.Add(-time.Minute)},
-			{`5 minutes ago`, t.Add(-5 * time.Minute)},
-			{`five minutes ago`, t.Add(-5 * time.Minute)},
-			{`   5    minutes  ago   `, t.Add(-5 * time.Minute)},
-			{`2 minutes from now`, t.Add(2 * time.Minute)},
-			{`two minutes from now`, t.Add(2 * time.Minute)},
+			{`next minute`, now.Add(time.Minute)},
+			{`last minute`, now.Add(-time.Minute)},
+			{`1 minute ago`, now.Add(-time.Minute)},
+			{`5 minutes ago`, now.Add(-5 * time.Minute)},
+			{`five minutes ago`, now.Add(-5 * time.Minute)},
+			{`   5    minutes  ago   `, now.Add(-5 * time.Minute)},
+			{`2 minutes from now`, now.Add(2 * time.Minute)},
+			{`two minutes from now`, now.Add(2 * time.Minute)},
 
 			// hours
-			{`last hour`, t.Add(-time.Hour)},
-			{`next hour`, t.Add(time.Hour)},
-			{`1 hour ago`, t.Add(-time.Hour)},
-			{`6 hours ago`, t.Add(-6 * time.Hour)},
-			{`1 hour from now`, t.Add(time.Hour)},
+			{`last hour`, now.Add(-time.Hour)},
+			{`next hour`, now.Add(time.Hour)},
+			{`1 hour ago`, now.Add(-time.Hour)},
+			{`6 hours ago`, now.Add(-6 * time.Hour)},
+			{`1 hour from now`, now.Add(time.Hour)},
 
 			// days
-			{`next day`, t.Add(24 * time.Hour)},
-			{`1 day ago`, t.Add(-24 * time.Hour)},
-			{`3 days ago`, t.Add(-3 * 24 * time.Hour)},
-			{`3 days ago at 11:25am`, dateAtTime(t.Add(-3*24*time.Hour), 11, 25, 0)},
-			{`1 day from now`, t.Add(24 * time.Hour)},
+			{`next day`, now.Add(24 * time.Hour)},
+			{`1 day ago`, now.Add(-24 * time.Hour)},
+			{`3 days ago`, now.Add(-3 * 24 * time.Hour)},
+			{`3 days ago at 11:25am`, dateAtTime(now.Add(-3*24*time.Hour), 11, 25, 0)},
+			{`1 day from now`, now.Add(24 * time.Hour)},
 
 			// weeks
-			{`1 week ago`, t.Add(-7 * 24 * time.Hour)},
-			{`2 weeks ago`, t.Add(-2 * 7 * 24 * time.Hour)},
-			{`2 weeks ago at 8am`, dateAtTime(t.Add(-2*7*24*time.Hour), 8, 0, 0)},
-			{`next week`, t.Add(7 * 24 * time.Hour)},
+			{`1 week ago`, now.Add(-7 * 24 * time.Hour)},
+			{`2 weeks ago`, now.Add(-2 * 7 * 24 * time.Hour)},
+			{`2 weeks ago at 8am`, dateAtTime(now.Add(-2*7*24*time.Hour), 8, 0, 0)},
+			{`next week`, now.Add(7 * 24 * time.Hour)},
 
 			// months
-			{`1 month ago`, t.AddDate(0, -1, 0)},
-			{`last month`, t.AddDate(0, -1, 0)},
-			{`next month`, t.AddDate(0, 1, 0)},
-			{`1 month ago at 9:30am`, dateAtTime(t.AddDate(0, -1, 0), 9, 30, 0)},
-			{`2 months ago`, t.AddDate(0, -2, 0)},
-			{`12 months ago`, t.AddDate(0, -12, 0)},
-			{`1 month from now`, t.AddDate(0, 1, 0)},
-			{`2 months from now`, t.AddDate(0, 2, 0)},
-			{`12 months from now at 6am`, dateAtTime(t.AddDate(0, 12, 0), 6, 0, 0)},
+			{`1 month ago`, now.AddDate(0, -1, 0)},
+			{`last month`, now.AddDate(0, -1, 0)},
+			{`next month`, now.AddDate(0, 1, 0)},
+			{`1 month ago at 9:30am`, dateAtTime(now.AddDate(0, -1, 0), 9, 30, 0)},
+			{`2 months ago`, now.AddDate(0, -2, 0)},
+			{`12 months ago`, now.AddDate(0, -12, 0)},
+			{`1 month from now`, now.AddDate(0, 1, 0)},
+			{`2 months from now`, now.AddDate(0, 2, 0)},
+			{`12 months from now at 6am`, dateAtTime(now.AddDate(0, 12, 0), 6, 0, 0)},
 
 			// years
-			{`last year`, t.AddDate(-1, 0, 0)},
-			{`next year`, t.AddDate(1, 0, 0)},
-			{`one year ago`, t.AddDate(-1, 0, 0)},
-			{`one year from now`, t.AddDate(1, 0, 0)},
-			{`two years ago`, t.AddDate(-2, 0, 0)},
-			{`2 years ago`, t.AddDate(-2, 0, 0)},
+			{`last year`, now.AddDate(-1, 0, 0)},
+			{`next year`, now.AddDate(1, 0, 0)},
+			{`one year ago`, now.AddDate(-1, 0, 0)},
+			{`one year from now`, now.AddDate(1, 0, 0)},
+			{`two years ago`, now.AddDate(-2, 0, 0)},
+			{`2 years ago`, now.AddDate(-2, 0, 0)},
 
 			// today
-			{`today`, t},
-			{`today at 10am`, dateAtTime(t, 10, 0, 0)},
+			{`today`, now},
+			{`today at 10am`, dateAtTime(now, 10, 0, 0)},
 
 			// yesterday
-			{`yesterday`, t.AddDate(0, 0, -1)},
-			{`yesterday 10am`, dateAtTime(t.AddDate(0, 0, -1), 10, 0, 0)},
-			{`yesterday at 10am`, dateAtTime(t.AddDate(0, 0, -1), 10, 0, 0)},
-			{`yesterday at 10:15am`, dateAtTime(t.AddDate(0, 0, -1), 10, 15, 0)},
+			{`yesterday`, now.AddDate(0, 0, -1)},
+			{`yesterday 10am`, dateAtTime(now.AddDate(0, 0, -1), 10, 0, 0)},
+			{`yesterday at 10am`, dateAtTime(now.AddDate(0, 0, -1), 10, 0, 0)},
+			{`yesterday at 10:15am`, dateAtTime(now.AddDate(0, 0, -1), 10, 15, 0)},
 
 			// tomorrow
-			{`tomorrow`, t.AddDate(0, 0, 1)},
-			{`tomorrow 10am`, dateAtTime(t.AddDate(0, 0, 1), 10, 0, 0)},
-			{`tomorrow at 10am`, dateAtTime(t.AddDate(0, 0, 1), 10, 0, 0)},
-			{`tomorrow at 10:15am`, dateAtTime(t.AddDate(0, 0, 1), 10, 15, 0)},
+			{`tomorrow`, now.AddDate(0, 0, 1)},
+			{`tomorrow 10am`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
+			{`tomorrow at 10am`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
+			{`tomorrow at 10:15am`, dateAtTime(now.AddDate(0, 0, 1), 10, 15, 0)},
 
 			// past weekdays
-			{`last sunday`, prevWeekday(t, time.Sunday)},
-			{`past sunday`, prevWeekday(t, time.Sunday)},
-			{`last monday`, prevWeekday(t, time.Monday)},
-			{`last tuesday`, prevWeekday(t, time.Tuesday)},
-			{`last wednesday`, prevWeekday(t, time.Wednesday)},
-			{`last thursday`, prevWeekday(t, time.Thursday)},
-			{`last friday`, prevWeekday(t, time.Friday)},
-			{`last saturday`, prevWeekday(t, time.Saturday)},
+			{`last sunday`, prevWeekday(now, time.Sunday)},
+			{`past sunday`, prevWeekday(now, time.Sunday)},
+			{`last monday`, prevWeekday(now, time.Monday)},
+			{`last tuesday`, prevWeekday(now, time.Tuesday)},
+			{`last wednesday`, prevWeekday(now, time.Wednesday)},
+			{`last thursday`, prevWeekday(now, time.Thursday)},
+			{`last friday`, prevWeekday(now, time.Friday)},
+			{`last saturday`, prevWeekday(now, time.Saturday)},
 
 			// future weekdays
-			{`next tuesday`, nextWeekday(t, time.Tuesday)},
-			{`next wednesday`, nextWeekday(t, time.Wednesday)},
-			{`next thursday`, nextWeekday(t, time.Thursday)},
-			{`next friday`, nextWeekday(t, time.Friday)},
-			{`next saturday`, nextWeekday(t, time.Saturday)},
-			{`next sunday`, nextWeekday(t, time.Sunday)},
-			{`next monday`, nextWeekday(t, time.Monday)},
+			{`next tuesday`, nextWeekday(now, time.Tuesday)},
+			{`next wednesday`, nextWeekday(now, time.Wednesday)},
+			{`next thursday`, nextWeekday(now, time.Thursday)},
+			{`next friday`, nextWeekday(now, time.Friday)},
+			{`next saturday`, nextWeekday(now, time.Saturday)},
+			{`next sunday`, nextWeekday(now, time.Sunday)},
+			{`next monday`, nextWeekday(now, time.Monday)},
 
 			// months
-			{`last january`, prevMonth(t, time.January)},
-			{`next january`, nextMonth(t, time.January)},
+			{`last january`, prevMonth(now, time.January)},
+			{`next january`, nextMonth(now, time.January)},
 
-			{"january 2017", time.Date(2017, 1, 1, 0, 0, 0, 0, t.Location())},
-			{"january, 2017", time.Date(2017, 1, 1, 0, 0, 0, 0, t.Location())},
-			{"april 3 2017", time.Date(2017, 4, 3, 0, 0, 0, 0, t.Location())},
-			{"april 3, 2017", time.Date(2017, 4, 3, 0, 0, 0, 0, t.Location())},
+			{"january 2017", time.Date(2017, 1, 1, 0, 0, 0, 0, now.Location())},
+			{"january, 2017", time.Date(2017, 1, 1, 0, 0, 0, 0, now.Location())},
+			{"april 3 2017", time.Date(2017, 4, 3, 0, 0, 0, 0, now.Location())},
+			{"april 3, 2017", time.Date(2017, 4, 3, 0, 0, 0, 0, now.Location())},
 
 			// case sensitivity
-			{`next December 23rd AT 5:25 PM`, nextMonthDayTime(t, time.December, 23, 12+5, 25, 0)},
+			{`next December 23rd AT 5:25 PM`, nextMonthDayTime(now, time.December, 23, 12+5, 25, 0)},
 
-			{`previous tuesday`, prevWeekday(t, time.Tuesday)},
-			{`last january`, prevMonth(t, time.January)},
-			{`next january`, nextMonth(t, time.January)},
+			{`previous tuesday`, prevWeekday(now, time.Tuesday)},
+			{`last january`, prevMonth(now, time.January)},
+			{`next january`, nextMonth(now, time.January)},
 		}
 
 		for _, c := range pastCases {
-			test.Run(c.Input, func(t *testing.T) {
-				v, err := Parse(c.Input, base)
+			t.Run(c.Input, func(t *testing.T) {
+				v, err := Parse(c.Input, now)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -282,7 +280,7 @@ func TestParse_good(test *testing.T) {
 func BenchmarkParse(b *testing.B) {
 	b.SetBytes(1)
 	for i := 0; i < b.N; i++ {
-		_, err := Parse(`december 23rd at 5:25pm`, base)
+		_, err := Parse(`december 23rd at 5:25pm`, time.Time{})
 		if err != nil {
 			log.Fatalf("error: %s", err)
 		}
