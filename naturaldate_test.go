@@ -150,167 +150,155 @@ func TestParse_bad(t *testing.T) {
 
 // Test parsing on cases that are expected to parse successfully.
 func TestParse_goodTimes(t *testing.T) {
-	var baseTimes = []time.Time{
-		time.Date(2022, 9, 29, 2, 48, 33, 123, time.Local),
-		time.Date(2022, 9, 29, 2, 48, 33, 123, time.UTC),
+	now := time.Date(2022, 9, 29, 2, 48, 33, 123, time.Local)
+	var cases = []struct {
+		Input    string
+		WantTime time.Time
+	}{
+		// now
+		{`now`, now},
+
+		// minutes
+		{`a minute from now`, now.Add(time.Minute)},
+		{`a minute ago`, now.Add(-time.Minute)},
+		{`next minute`, now.Add(time.Minute)},
+		{`last minute`, now.Add(-time.Minute)},
+		{`1 minute ago`, now.Add(-time.Minute)},
+		{`5 minutes ago`, now.Add(-5 * time.Minute)},
+		{`five minutes ago`, now.Add(-5 * time.Minute)},
+		{`   5    minutes  ago   `, now.Add(-5 * time.Minute)},
+		{`2 minutes from now`, now.Add(2 * time.Minute)},
+		{`two minutes from now`, now.Add(2 * time.Minute)},
+
+		// hours
+		{`an hour from now`, now.Add(time.Hour)},
+		{`an hour ago`, now.Add(-time.Hour)},
+		{`last hour`, now.Add(-time.Hour)},
+		{`next hour`, now.Add(time.Hour)},
+		{`1 hour ago`, now.Add(-time.Hour)},
+		{`6 hours ago`, now.Add(-6 * time.Hour)},
+		{`1 hour from now`, now.Add(time.Hour)},
+
+		// dates with times
+		{`3 days ago at 11:25am`, dateAtTime(now.Add(-3*24*time.Hour), 11, 25, 0)},
+		{`2 weeks ago at 8am`, dateAtTime(now.Add(-2*7*24*time.Hour), 8, 0, 0)},
+		{`today at 10am`, dateAtTime(now, 10, 0, 0)},
+		{`yesterday 10am`, dateAtTime(now.AddDate(0, 0, -1), 10, 0, 0)},
+		{`yesterday at 10am`, dateAtTime(now.AddDate(0, 0, -1), 10, 0, 0)},
+		{`yesterday at 10:15am`, dateAtTime(now.AddDate(0, 0, -1), 10, 15, 0)},
+		{`tomorrow 10am`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
+		{`10am tomorrow`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
+		{`tomorrow at 10am`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
+		{`tomorrow at 10:15am`, dateAtTime(now.AddDate(0, 0, 1), 10, 15, 0)},
+		{`next December 23rd AT 5:25 PM`, nextMonthDayTime(now, time.December, 23, 12+5, 25, 0)},
+		{`last sunday at 5:30pm`, dateAtTime(prevWeekday(now, time.Sunday), 12+5, 30, 0)},
+		{`next sunday at 22:45`, dateAtTime(nextWeekday(now, time.Sunday), 22, 45, 0)},
+		{`next sunday at 22:45`, dateAtTime(nextWeekday(now, time.Sunday), 22, 45, 0)},
+		{`November 3rd, 1986 at 4:30pm`, time.Date(1986, 11, 3, 12+4, 30, 0, 0, now.Location())},
 	}
 
-	for _, now := range baseTimes {
-		var cases = []struct {
-			Input    string
-			WantTime time.Time
-		}{
-			// now
-			{`now`, now},
-
-			// minutes
-			{`a minute from now`, now.Add(time.Minute)},
-			{`a minute ago`, now.Add(-time.Minute)},
-			{`next minute`, now.Add(time.Minute)},
-			{`last minute`, now.Add(-time.Minute)},
-			{`1 minute ago`, now.Add(-time.Minute)},
-			{`5 minutes ago`, now.Add(-5 * time.Minute)},
-			{`five minutes ago`, now.Add(-5 * time.Minute)},
-			{`   5    minutes  ago   `, now.Add(-5 * time.Minute)},
-			{`2 minutes from now`, now.Add(2 * time.Minute)},
-			{`two minutes from now`, now.Add(2 * time.Minute)},
-
-			// hours
-			{`an hour from now`, now.Add(time.Hour)},
-			{`an hour ago`, now.Add(-time.Hour)},
-			{`last hour`, now.Add(-time.Hour)},
-			{`next hour`, now.Add(time.Hour)},
-			{`1 hour ago`, now.Add(-time.Hour)},
-			{`6 hours ago`, now.Add(-6 * time.Hour)},
-			{`1 hour from now`, now.Add(time.Hour)},
-
-			// dates with times
-			{`3 days ago at 11:25am`, dateAtTime(now.Add(-3*24*time.Hour), 11, 25, 0)},
-			{`2 weeks ago at 8am`, dateAtTime(now.Add(-2*7*24*time.Hour), 8, 0, 0)},
-			{`today at 10am`, dateAtTime(now, 10, 0, 0)},
-			{`yesterday 10am`, dateAtTime(now.AddDate(0, 0, -1), 10, 0, 0)},
-			{`yesterday at 10am`, dateAtTime(now.AddDate(0, 0, -1), 10, 0, 0)},
-			{`yesterday at 10:15am`, dateAtTime(now.AddDate(0, 0, -1), 10, 15, 0)},
-			{`tomorrow 10am`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
-			{`10am tomorrow`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
-			{`tomorrow at 10am`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
-			{`tomorrow at 10:15am`, dateAtTime(now.AddDate(0, 0, 1), 10, 15, 0)},
-			{`next December 23rd AT 5:25 PM`, nextMonthDayTime(now, time.December, 23, 12+5, 25, 0)},
-			{`last sunday at 5:30pm`, dateAtTime(prevWeekday(now, time.Sunday), 12+5, 30, 0)},
-			{`next sunday at 22:45`, dateAtTime(nextWeekday(now, time.Sunday), 22, 45, 0)},
-			{`next sunday at 22:45`, dateAtTime(nextWeekday(now, time.Sunday), 22, 45, 0)},
-			{`November 3rd, 1986 at 4:30pm`, time.Date(1986, 11, 3, 12+4, 30, 0, 0, now.Location())},
-		}
-
-		for _, c := range cases {
-			t.Run(c.Input, func(t *testing.T) {
-				v, err := Parse(c.Input, now)
-				if err != nil {
-					t.Fatal(err)
-				}
-				assert.Equal(t, c.WantTime, v)
-			})
-		}
+	for _, c := range cases {
+		t.Run(c.Input, func(t *testing.T) {
+			v, err := Parse(c.Input, now)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assert.Equal(t, c.WantTime, v)
+		})
 	}
 }
 
 func TestParse_goodDays(t *testing.T) {
-	var baseTimes = []time.Time{
-		time.Date(2022, 9, 29, 2, 48, 33, 123, time.Local),
-		time.Date(2022, 9, 29, 2, 48, 33, 123, time.UTC),
+	now := time.Date(2022, 9, 29, 2, 48, 33, 123, time.Local)
+	var cases = []struct {
+		Input    string
+		WantTime time.Time
+	}{
+		// days
+		{`one day ago`, now.Add(-24 * time.Hour)},
+		{`1 day ago`, now.Add(-24 * time.Hour)},
+		{`3 days ago`, now.Add(-3 * 24 * time.Hour)},
+		{`three days ago`, now.Add(-3 * 24 * time.Hour)},
+		{`1 day from now`, now.Add(24 * time.Hour)},
+
+		// weeks
+		{`1 week ago`, now.Add(-7 * 24 * time.Hour)},
+		{`2 weeks ago`, now.Add(-2 * 7 * 24 * time.Hour)},
+		{`next week`, now.Add(7 * 24 * time.Hour)},
+		{`a week from now`, now.Add(7 * 24 * time.Hour)},
+		{`a week from today`, now.Add(7 * 24 * time.Hour)},
+
+		// months
+		{`a month ago`, now.AddDate(0, -1, 0)},
+		{`1 month ago`, now.AddDate(0, -1, 0)},
+		{`last month`, now.AddDate(0, -1, 0)},
+		{`next month`, now.AddDate(0, 1, 0)},
+		{`2 months ago`, now.AddDate(0, -2, 0)},
+		{`12 months ago`, now.AddDate(0, -12, 0)},
+		{`a month from now`, now.AddDate(0, 1, 0)},
+		{`1 month from now`, now.AddDate(0, 1, 0)},
+		{`2 months from now`, now.AddDate(0, 2, 0)},
+
+		// years
+		{`last year`, truncateYear(now.AddDate(-1, 0, 0))},
+		{`next year`, truncateYear(now.AddDate(1, 0, 0))},
+		{`one year ago`, truncateYear(now.AddDate(-1, 0, 0))},
+		{`one year from now`, truncateYear(now.AddDate(1, 0, 0))},
+		{`one year from today`, truncateYear(now.AddDate(1, 0, 0))},
+		{`two years ago`, truncateYear(now.AddDate(-2, 0, 0))},
+		{`2 years ago`, truncateYear(now.AddDate(-2, 0, 0))},
+
+		// today
+		{`today`, now},
+
+		// yesterday
+		{`yesterday`, now.AddDate(0, 0, -1)},
+
+		// tomorrow
+		{`tomorrow`, now.AddDate(0, 0, 1)},
+
+		// past weekdays
+		{`last sunday`, prevWeekday(now, time.Sunday)},
+		{`past sunday`, prevWeekday(now, time.Sunday)},
+		{`last monday`, prevWeekday(now, time.Monday)},
+		{`last tuesday`, prevWeekday(now, time.Tuesday)},
+		{`last wednesday`, prevWeekday(now, time.Wednesday)},
+		{`last thursday`, prevWeekday(now, time.Thursday)},
+		{`last friday`, prevWeekday(now, time.Friday)},
+		{`last saturday`, prevWeekday(now, time.Saturday)},
+
+		// future weekdays
+		{`next tuesday`, nextWeekday(now, time.Tuesday)},
+		{`next wednesday`, nextWeekday(now, time.Wednesday)},
+		{`next thursday`, nextWeekday(now, time.Thursday)},
+		{`next friday`, nextWeekday(now, time.Friday)},
+		{`next saturday`, nextWeekday(now, time.Saturday)},
+		{`next sunday`, nextWeekday(now, time.Sunday)},
+		{`next monday`, nextWeekday(now, time.Monday)},
+
+		// months
+		{`last january`, prevMonth(now, time.January)},
+		{`next january`, nextMonth(now, time.January)},
+
+		{"january 2017", time.Date(2017, 1, 1, 0, 0, 0, 0, now.Location())},
+		{"january, 2017", time.Date(2017, 1, 1, 0, 0, 0, 0, now.Location())},
+		{"april 3 2017", time.Date(2017, 4, 3, 0, 0, 0, 0, now.Location())},
+		{"april 3, 2017", time.Date(2017, 4, 3, 0, 0, 0, 0, now.Location())},
+
+		{`previous tuesday`, prevWeekday(now, time.Tuesday)},
+		{`last january`, prevMonth(now, time.January)},
+		{`next january`, nextMonth(now, time.January)},
 	}
 
-	for _, now := range baseTimes {
-		var cases = []struct {
-			Input    string
-			WantTime time.Time
-		}{
-			// days
-			{`one day ago`, now.Add(-24 * time.Hour)},
-			{`1 day ago`, now.Add(-24 * time.Hour)},
-			{`3 days ago`, now.Add(-3 * 24 * time.Hour)},
-			{`three days ago`, now.Add(-3 * 24 * time.Hour)},
-			{`1 day from now`, now.Add(24 * time.Hour)},
-
-			// weeks
-			{`1 week ago`, now.Add(-7 * 24 * time.Hour)},
-			{`2 weeks ago`, now.Add(-2 * 7 * 24 * time.Hour)},
-			{`next week`, now.Add(7 * 24 * time.Hour)},
-			{`a week from now`, now.Add(7 * 24 * time.Hour)},
-			{`a week from today`, now.Add(7 * 24 * time.Hour)},
-
-			// months
-			{`a month ago`, now.AddDate(0, -1, 0)},
-			{`1 month ago`, now.AddDate(0, -1, 0)},
-			{`last month`, now.AddDate(0, -1, 0)},
-			{`next month`, now.AddDate(0, 1, 0)},
-			{`2 months ago`, now.AddDate(0, -2, 0)},
-			{`12 months ago`, now.AddDate(0, -12, 0)},
-			{`a month from now`, now.AddDate(0, 1, 0)},
-			{`1 month from now`, now.AddDate(0, 1, 0)},
-			{`2 months from now`, now.AddDate(0, 2, 0)},
-
-			// years
-			{`last year`, truncateYear(now.AddDate(-1, 0, 0))},
-			{`next year`, truncateYear(now.AddDate(1, 0, 0))},
-			{`one year ago`, truncateYear(now.AddDate(-1, 0, 0))},
-			{`one year from now`, truncateYear(now.AddDate(1, 0, 0))},
-			{`one year from today`, truncateYear(now.AddDate(1, 0, 0))},
-			{`two years ago`, truncateYear(now.AddDate(-2, 0, 0))},
-			{`2 years ago`, truncateYear(now.AddDate(-2, 0, 0))},
-
-			// today
-			{`today`, now},
-
-			// yesterday
-			{`yesterday`, now.AddDate(0, 0, -1)},
-
-			// tomorrow
-			{`tomorrow`, now.AddDate(0, 0, 1)},
-
-			// past weekdays
-			{`last sunday`, prevWeekday(now, time.Sunday)},
-			{`past sunday`, prevWeekday(now, time.Sunday)},
-			{`last monday`, prevWeekday(now, time.Monday)},
-			{`last tuesday`, prevWeekday(now, time.Tuesday)},
-			{`last wednesday`, prevWeekday(now, time.Wednesday)},
-			{`last thursday`, prevWeekday(now, time.Thursday)},
-			{`last friday`, prevWeekday(now, time.Friday)},
-			{`last saturday`, prevWeekday(now, time.Saturday)},
-
-			// future weekdays
-			{`next tuesday`, nextWeekday(now, time.Tuesday)},
-			{`next wednesday`, nextWeekday(now, time.Wednesday)},
-			{`next thursday`, nextWeekday(now, time.Thursday)},
-			{`next friday`, nextWeekday(now, time.Friday)},
-			{`next saturday`, nextWeekday(now, time.Saturday)},
-			{`next sunday`, nextWeekday(now, time.Sunday)},
-			{`next monday`, nextWeekday(now, time.Monday)},
-
-			// months
-			{`last january`, prevMonth(now, time.January)},
-			{`next january`, nextMonth(now, time.January)},
-
-			{"january 2017", time.Date(2017, 1, 1, 0, 0, 0, 0, now.Location())},
-			{"january, 2017", time.Date(2017, 1, 1, 0, 0, 0, 0, now.Location())},
-			{"april 3 2017", time.Date(2017, 4, 3, 0, 0, 0, 0, now.Location())},
-			{"april 3, 2017", time.Date(2017, 4, 3, 0, 0, 0, 0, now.Location())},
-
-			{`previous tuesday`, prevWeekday(now, time.Tuesday)},
-			{`last january`, prevMonth(now, time.January)},
-			{`next january`, nextMonth(now, time.January)},
-		}
-
-		for _, c := range cases {
-			t.Run(c.Input, func(t *testing.T) {
-				v, err := Parse(c.Input, now)
-				if err != nil {
-					t.Fatal(err)
-				}
-				want := truncateDay(c.WantTime)
-				assert.Equal(t, want, v)
-			})
-		}
+	for _, c := range cases {
+		t.Run(c.Input, func(t *testing.T) {
+			v, err := Parse(c.Input, now)
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := truncateDay(c.WantTime)
+			assert.Equal(t, want, v)
+		})
 	}
 }
 
