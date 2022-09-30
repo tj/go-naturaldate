@@ -97,6 +97,16 @@ RelativeWeeks
       p.t = p.t.Add(week * time.Duration(p.number))
       truncateDayIfNoTime(p)
     }
+  / NEXT WEEK
+    {
+      p.t = p.t.Add(week)
+      truncateDayIfNoTime(p)
+    }
+  / LAST WEEK
+    {
+      p.t = p.t.Add(-week)
+      truncateDayIfNoTime(p)
+    }
 
 RelativeMonth
   <- Number MONTHS AGO
@@ -119,6 +129,16 @@ RelativeMonth
       p.t = nextMonth(p.t, p.month)
       truncateDayIfNoTime(p)
     }
+  / LAST MONTH
+    {
+      p.t = p.t.AddDate(0, -1, 0)
+      truncateDayIfNoTime(p)
+    }
+  / NEXT MONTH
+    {
+      p.t = p.t.AddDate(0, 1, 0)
+      truncateDayIfNoTime(p)
+    }
 
 RelativeYear
   <- Number YEARS AGO
@@ -131,12 +151,12 @@ RelativeYear
       p.t = p.t.AddDate(p.number, 0, 0)
       truncateDayIfNoTime(p)
     }
-  / LAST YEARS
+  / LAST YEAR
     {
       p.t = time.Date(p.t.Year() - 1, 1, 1, 0, 0, 0, 0, p.t.Location())
       truncateDayIfNoTime(p)
     }
-  / NEXT YEARS
+  / NEXT YEAR
     {
       p.t = time.Date(p.t.Year() + 1, 1, 1, 0, 0, 0, 0, p.t.Location())
       truncateDayIfNoTime(p)
@@ -266,20 +286,23 @@ Month
   / 'december' _  { p.month = time.December }
 
 In
-  <- IN          { p.number = 1}
+  <- IN _        { p.number = 1}
 
 Last
-  <- LAST        { p.number = 1 }
+  <- LAST _      { p.number = 1 }
 
 Next
-  <- NEXT        { p.number = 1 }
+  <- NEXT _      { p.number = 1 }
 
 Ordinal
   <- ('st' / 'nd' / 'rd' / 'th') _
 
 YEARS      <- 'year' 's'? _
+YEAR       <- 'year' _
 MONTHS     <- 'month' 's'? _
+MONTH      <- 'month' _
 WEEKS      <- 'week' 's'? _
+WEEK       <- 'week' _
 DAYS       <- 'day' 's'? _
 HOURS      <- 'hour' 's'? _
 HOUR       <- 'hour' _
