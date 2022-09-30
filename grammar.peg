@@ -15,6 +15,15 @@ Query
 
 Expr
   <- NOW
+  / NEXT MINUTE
+    {
+      p.t = p.t.Add(time.Minute)
+    }
+  / LAST MINUTE
+    {
+      p.t = p.t.Add(-time.Minute)
+    }
+  / RelativeMinutes
   / RelativeMinutes
   / RelativeHours
   / RelativeDays
@@ -22,9 +31,8 @@ Expr
   / RelativeWeekdays
   / RelativeMonth
   / RelativeYear
-  / Date
-  / Time
-  / Preposition
+  / Date (AT? Time)?
+  / Time ON? Date
 
 RelativeMinutes
   <- Number MINUTES AGO
@@ -196,14 +204,6 @@ RelativeWeekdays
     {
       p.t = truncateDay(nextWeekday(p.t, p.weekday))
     }
-  / Weekday
-    {
-      if p.direction < 0 {
-        p.t = truncateDay(prevWeekday(p.t, p.weekday))
-      } else {
-        p.t = truncateDay(nextWeekday(p.t, p.weekday))
-      }
-    }
 
 Date
   <- (Number Ordinal / Last Number? Number)
@@ -308,15 +308,13 @@ Next
 Ordinal
   <- ('st' / 'nd' / 'rd' / 'th') _
 
-Preposition
-  <- ('at' / 'on' / 'of' ) _
-
 YEARS      <- 'year' 's'? _
 MONTHS     <- 'month' 's'? _
 WEEKS      <- 'week' 's'? _
 DAYS       <- 'day' 's'? _
 HOURS      <- 'hour' 's'? _
-MINUTES    <- 'minute' 's'? _
+MINUTES    <- 'minutes' _
+MINUTE     <- 'minute' _
 YESTERDAY  <- 'yesterday' _
 TOMORROW   <- 'tomorrow' _
 TODAY      <- 'today' _
@@ -328,7 +326,8 @@ PM         <- 'pm' _
 NEXT       <- 'next' _
 IN         <- ('in an' / 'in a' / 'in') _
 LAST       <- ('last' / 'past' / 'previous') _
-
+AT         <- 'at' _
+ON         <- 'on' _
 _
   <- Whitespace*
 
