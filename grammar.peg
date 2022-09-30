@@ -65,6 +65,14 @@ RelativeHours
     { 
       p.t = p.t.Add(time.Hour * time.Duration(p.number))
     }
+  / Last HOUR
+    {
+      p.t = p.t.Add(-time.Hour)
+    }
+  / Next HOUR
+    {
+      p.t = p.t.Add(time.Hour)
+    }
 
 RelativeDays
   <- Number DAYS AGO
@@ -253,6 +261,7 @@ MONTHS     <- 'month' 's'? _
 WEEKS      <- 'week' 's'? _
 DAYS       <- 'day' 's'? _
 HOURS      <- 'hour' 's'? _
+HOUR       <- 'hour' _
 MINUTES    <- 'minute' 's'? _
 MINUTE     <- 'minute' _
 YESTERDAY  <- 'yesterday' _
