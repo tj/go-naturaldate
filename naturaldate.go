@@ -129,3 +129,8 @@ func truncateDayIfNoTime(p *parser) {
 		p.t = truncateDay(p.t)
 	}
 }
+
+// truncateYear returns a date truncated to the year.
+func truncateYear(t time.Time) time.Time {
+	return time.Date(t.Year(), 1, 1, 0, 0, 0, 0, t.Location())
+}

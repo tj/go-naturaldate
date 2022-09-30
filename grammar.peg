@@ -143,21 +143,19 @@ RelativeMonth
 RelativeYear
   <- Number YEARS AGO
     {
-      p.t = p.t.AddDate(-p.number, 0, 0)
-      truncateDayIfNoTime(p)
+      p.t = truncateYear(p.t.AddDate(-p.number, 0, 0))
     }
   / (Number YEARS FROM_NOW / In Number? YEARS FROM_NOW?)
     {
-      p.t = p.t.AddDate(p.number, 0, 0)
-      truncateDayIfNoTime(p)
+      p.t = truncateYear(p.t.AddDate(p.number, 0, 0))
     }
   / LAST YEAR
     {
-      p.t = time.Date(p.t.Year() - 1, 1, 1, 0, 0, 0, 0, p.t.Location())
+      p.t = truncateYear(p.t.AddDate(-1, 0, 0))
     }
   / NEXT YEAR
     {
-      p.t = time.Date(p.t.Year() + 1, 1, 1, 0, 0, 0, 0, p.t.Location())
+      p.t = truncateYear(p.t.AddDate(1, 0, 0))
     }
 
 

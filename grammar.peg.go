@@ -592,23 +592,19 @@ func (p *parser) Execute() {
 
 		case ruleAction22:
 
-			p.t = p.t.AddDate(-p.number, 0, 0)
-			truncateDayIfNoTime(p)
+			p.t = truncateYear(p.t.AddDate(-p.number, 0, 0))
 
 		case ruleAction23:
 
-			p.t = p.t.AddDate(p.number, 0, 0)
-			truncateDayIfNoTime(p)
+			p.t = truncateYear(p.t.AddDate(p.number, 0, 0))
 
 		case ruleAction24:
 
-			p.t = time.Date(p.t.Year()-1, 1, 1, 0, 0, 0, 0, p.t.Location())
-			truncateDayIfNoTime(p)
+			p.t = truncateYear(p.t.AddDate(-1, 0, 0))
 
 		case ruleAction25:
 
-			p.t = time.Date(p.t.Year()+1, 1, 1, 0, 0, 0, 0, p.t.Location())
-			truncateDayIfNoTime(p)
+			p.t = truncateYear(p.t.AddDate(1, 0, 0))
 
 		case ruleAction26:
 
@@ -640,7 +636,6 @@ func (p *parser) Execute() {
 			year, month, _ := t.Date()
 			hour, min, sec := t.Clock()
 			p.t = time.Date(year, month, p.number, hour, min, sec, 0, t.Location())
-			truncateDayIfNoTime(p)
 
 		case ruleAction32:
 
@@ -4460,8 +4455,7 @@ func (p *parser) Init(options ...func(*parser) error) error {
 			return true
 		},
 		/* 73 Action22 <- <{
-		   p.t = p.t.AddDate(-p.number, 0, 0)
-		   truncateDayIfNoTime(p)
+		   p.t = truncateYear(p.t.AddDate(-p.number, 0, 0))
 		 }> */
 		func() bool {
 			{
@@ -4470,8 +4464,7 @@ func (p *parser) Init(options ...func(*parser) error) error {
 			return true
 		},
 		/* 74 Action23 <- <{
-		   p.t = p.t.AddDate(p.number, 0, 0)
-		   truncateDayIfNoTime(p)
+		   p.t = truncateYear(p.t.AddDate(p.number, 0, 0))
 		 }> */
 		func() bool {
 			{
@@ -4480,8 +4473,7 @@ func (p *parser) Init(options ...func(*parser) error) error {
 			return true
 		},
 		/* 75 Action24 <- <{
-		   p.t = time.Date(p.t.Year() - 1, 1, 1, 0, 0, 0, 0, p.t.Location())
-		   truncateDayIfNoTime(p)
+		   p.t = truncateYear(p.t.AddDate(-1, 0, 0))
 		 }> */
 		func() bool {
 			{
@@ -4490,8 +4482,7 @@ func (p *parser) Init(options ...func(*parser) error) error {
 			return true
 		},
 		/* 76 Action25 <- <{
-		   p.t = time.Date(p.t.Year() + 1, 1, 1, 0, 0, 0, 0, p.t.Location())
-		   truncateDayIfNoTime(p)
+		   p.t = truncateYear(p.t.AddDate(1, 0, 0))
 		 }> */
 		func() bool {
 			{
@@ -4553,7 +4544,6 @@ func (p *parser) Init(options ...func(*parser) error) error {
 		   year, month, _ := t.Date()
 		   hour, min, sec := t.Clock()
 		   p.t = time.Date(year, month, p.number, hour, min, sec, 0, t.Location())
-		   truncateDayIfNoTime(p)
 		 }> */
 		func() bool {
 			{

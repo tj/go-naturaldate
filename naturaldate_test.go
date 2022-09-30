@@ -246,12 +246,12 @@ func TestParse_goodDays(t *testing.T) {
 			{`2 months from now`, now.AddDate(0, 2, 0)},
 
 			// years
-			{`last year`, now.AddDate(-1, 0, 0)},
-			{`next year`, now.AddDate(1, 0, 0)},
-			{`one year ago`, now.AddDate(-1, 0, 0)},
-			{`one year from now`, now.AddDate(1, 0, 0)},
-			{`two years ago`, now.AddDate(-2, 0, 0)},
-			{`2 years ago`, now.AddDate(-2, 0, 0)},
+			{`last year`, truncateYear(now.AddDate(-1, 0, 0))},
+			{`next year`, truncateYear(now.AddDate(1, 0, 0))},
+			{`one year ago`, truncateYear(now.AddDate(-1, 0, 0))},
+			{`one year from now`, truncateYear(now.AddDate(1, 0, 0))},
+			{`two years ago`, truncateYear(now.AddDate(-2, 0, 0))},
+			{`2 years ago`, truncateYear(now.AddDate(-2, 0, 0))},
 
 			// today
 			{`today`, now},
