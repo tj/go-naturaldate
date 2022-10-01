@@ -10,10 +10,11 @@ type parser Peg {
   dayOfMonth int
   weekday time.Weekday
   hasTime bool
+  match string
 }
 
 Query
-  <- _ Expr
+  <- <_ Expr> { p.match = text }
 
 Expr
   <- NOW
