@@ -59,6 +59,15 @@ Date
        }
        p.t = time.Date(y, time.Month(m), d, 0, 0, 0, 0, p.t.Location())
     }
+  / ( < [0-3]?[0-9] [-/] [01]?[0-9] [-/] [12][0-9][0-9][0-9] > )
+    {
+       rx := regexp.MustCompile(`[-/]`)
+       parts := rx.Split(text, -1)
+       d, _ := strconv.Atoi(parts[0])
+       m, _ := strconv.Atoi(parts[1])
+       y, _ := strconv.Atoi(parts[2])
+       p.t = time.Date(y, time.Month(m), d, 0, 0, 0, 0, p.t.Location())
+    }
 
 Year
   <- < [12][0-9][0-9][0-9] > _ { n, _ := strconv.Atoi(text); p.year = n }
