@@ -21,17 +21,19 @@ Expr
   / RelativeMinutes
   / RelativeMinutes
   / RelativeHours
-  / RelativeDays (AT? Time)?
+  / RelativeDays AtTime?
   / Time? RelativeDays
-  / RelativeWeeks (AT? Time)?
+  / RelativeWeeks AtTime?
   / Time? RelativeWeeks
-  / RelativeWeekdays (AT? Time)?
+  / RelativeWeekdays AtTime?
   / Time? RelativeWeekdays
-  / RelativeMonthDay (AT? Time)?
+  / RelativeMonthDay AtTime?
   / RelativeMonth
   / RelativeYear
-  / Date (AT? Time)?
+  / Date AtTime?
   / Time ON? Date
+
+AtTime <- COMMA? AT? Time
 
 Date
   <- ( Month DayOfMonth? COMMA? Year / Year Month DayOfMonth? / DayOfMonth? Month COMMA? Year )
