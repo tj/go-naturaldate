@@ -37,13 +37,28 @@ AtTime <- COMMA? AT? Time
 
 Date
   <- ( Month DayOfMonth? COMMA? Year / Year Month DayOfMonth? / DayOfMonth? Month COMMA? Year )
-      {
-         dom := p.dayOfMonth
-         if dom == 0 {
-            dom = 1
-         }
-         p.t = time.Date(p.year, p.month, dom, 0, 0, 0, 0, p.t.Location())
-      }
+    {
+       dom := p.dayOfMonth
+       if dom == 0 {
+          dom = 1
+       }
+       p.t = time.Date(p.year, p.month, dom, 0, 0, 0, 0, p.t.Location())
+    }
+  / < [12][0-9][0-9][0-9] '-' [01][0-9] '-' [0-3][0-9] >
+    {
+       parts := strings.Split(text, "-")
+       y, _ := strconv.Atoi(parts[0])
+       m, _ := strconv.Atoi(parts[1])
+       d, _ := strconv.Atoi(parts[2])
+       p.t = time.Date(y, time.Month(m), d, 0, 0, 0, 0, p.t.Location())
+    }
+  / < [12][0-9][0-9][0-9] '-' [01][0-9] >
+    {
+       parts := strings.Split(text, "-")
+       y, _ := strconv.Atoi(parts[0])
+       m, _ := strconv.Atoi(parts[1])
+       p.t = time.Date(y, time.Month(m), 0, 0, 0, 0, 0, p.t.Location())
+    }
 
 Year
   <- < [12][0-9][0-9][0-9] > _ { n, _ := strconv.Atoi(text); p.year = n }
