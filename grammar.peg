@@ -1,9 +1,6 @@
 package naturaldate
 
-import (
-    "regexp"
-    "time"
-)
+import "time"
 
 type parser Peg {
   t time.Time
@@ -47,27 +44,19 @@ Date
        }
        p.t = time.Date(p.year, p.month, dom, 0, 0, 0, 0, p.t.Location())
     }
-  / ( < [12][0-9][0-9][0-9] [-/] [01]?[0-9] [-/] [0-3]?[0-9] > )
+  / ( < Year [-/] MonthNum [-/] DayOfMonthNum > / < DayOfMonthNum [-/] MonthNum [-/] Year > )
     {
-       rx := regexp.MustCompile(`[-/]`)
-       parts := rx.Split(text, -1)
-       y, _ := strconv.Atoi(parts[0])
-       m, _ := strconv.Atoi(parts[1])
-       d, _ := strconv.Atoi(parts[2])
-       p.t = time.Date(y, time.Month(m), d, 0, 0, 0, 0, p.t.Location())
-    }
-  / ( < [0-3]?[0-9] [-/] [01]?[0-9] [-/] [12][0-9][0-9][0-9] > )
-    {
-       rx := regexp.MustCompile(`[-/]`)
-       parts := rx.Split(text, -1)
-       d, _ := strconv.Atoi(parts[0])
-       m, _ := strconv.Atoi(parts[1])
-       y, _ := strconv.Atoi(parts[2])
-       p.t = time.Date(y, time.Month(m), d, 0, 0, 0, 0, p.t.Location())
+       p.t = time.Date(p.year, p.month, p.dayOfMonth, 0, 0, 0, 0, p.t.Location())
     }
 
 Year
   <- < [12][0-9][0-9][0-9] > _ { n, _ := strconv.Atoi(text); p.year = n }
+
+MonthNum
+  <- < [01]?[0-9] > { n, _ := strconv.Atoi(text); p.month = time.Month(n) }
+
+DayOfMonthNum
+  <- < [0-3]?[0-9] > { n, _ := strconv.Atoi(text); p.dayOfMonth = n }
 
 RelativeMinutes
   <- Number MINUTES AGO
