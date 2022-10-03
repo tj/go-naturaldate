@@ -82,7 +82,9 @@ func TestParse_bad(t *testing.T) {
 		// "next 2 months" is a date range, not a time or a date.
 		{`next 2 months`},
 
-		// ambiguous weekday inputs
+		// Ambiguous weekday inputs:
+		// For example, is it the current Sunday if today happens to be a
+		// Sunday, next Sunday, or the previous Sunday?
 		{`sunday`},
 		{`monday`},
 		{`tuesday`},
@@ -91,7 +93,8 @@ func TestParse_bad(t *testing.T) {
 		{`friday`},
 		{`saturday`},
 
-		// ambiguous month inputs
+		// Ambiguous month inputs:
+		// These are ambiguous because they don't include the year.
 		{`january`},
 		{`february`},
 		{`march`},
@@ -104,7 +107,8 @@ func TestParse_bad(t *testing.T) {
 		{`october`},
 		{`november`},
 
-		// ambiguous ordinal dates
+		// Ambiguous ordinal dates:
+		// These are ambiguous because they don't include the year.
 		{`november 15th`},
 		{`december 1st`},
 		{`december 2nd`},
@@ -120,7 +124,8 @@ func TestParse_bad(t *testing.T) {
 		{`7am on December 25th`},
 		{`25th of December at 7am`},
 
-		// ambiguous: 12-hour clock
+		// Ambiguous 12-hour times:
+		// These are ambiguous because they don't include the date.
 		{`10am`},
 		{`10 am`},
 		{`5pm`},
@@ -129,14 +134,15 @@ func TestParse_bad(t *testing.T) {
 		{`10:25:10am`},
 		{`1:05:10pm`},
 
-		// ambiguous: 24-hour clock
+		// Ambiguous 24-hour times:
+		// These are ambiguous because they don't include the date.
 		{`10`},
 		{`10:25`},
 		{`10:25:30`},
 		{`17`},
 		{`17:25:30`},
 
-		// goofy input
+		// Goofy input:
 		{`10:am`},
 	}
 	for _, c := range badCases {
