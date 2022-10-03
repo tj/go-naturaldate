@@ -1,6 +1,9 @@
 package naturaldate
 
-import "time"
+import (
+    "regexp"
+    "time"
+)
 
 type parser Peg {
   t time.Time
@@ -44,9 +47,10 @@ Date
        }
        p.t = time.Date(p.year, p.month, dom, 0, 0, 0, 0, p.t.Location())
     }
-  / ( < [12][0-9][0-9][0-9] '-' [01]?[0-9] '-' [0-3]?[0-9] > / < [12][0-9][0-9][0-9] '-' [01]?[0-9] >)
+  / ( < [12][0-9][0-9][0-9] [-/] [01]?[0-9] [-/] [0-3]?[0-9] > / < [12][0-9][0-9][0-9] [-/] [01]?[0-9] >)
     {
-       parts := strings.Split(text, "-")
+       rx := regexp.MustCompile(`[-/]`)
+       parts := rx.Split(text, -1)
        y, _ := strconv.Atoi(parts[0])
        m, _ := strconv.Atoi(parts[1])
        var d = 1
