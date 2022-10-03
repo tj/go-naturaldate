@@ -192,6 +192,7 @@ func TestParse_goodTimes(t *testing.T) {
 		{`10am tomorrow`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
 		{`tomorrow at 10am`, dateAtTime(now.AddDate(0, 0, 1), 10, 0, 0)},
 		{`tomorrow at 10:15am`, dateAtTime(now.AddDate(0, 0, 1), 10, 15, 0)},
+		{"next December 25th at 7:30am UTC-7", timeInLocation(nextMonthDayTime(now, time.December, 25, 7, 30, 0), fixedZone(-7))},
 		{`next December 23rd AT 5:25 PM`, nextMonthDayTime(now, time.December, 23, 12+5, 25, 0)},
 		{`last sunday at 5:30pm`, dateAtTime(prevWeekday(now, time.Sunday), 12+5, 30, 0)},
 		{`next sunday at 22:45`, dateAtTime(nextWeekday(now, time.Sunday), 22, 45, 0)},
@@ -300,10 +301,12 @@ func TestParse_goodDays(t *testing.T) {
 		{"april 3 2017", time.Date(2017, 4, 3, 0, 0, 0, 0, now.Location())},
 		{"april 3, 2017", time.Date(2017, 4, 3, 0, 0, 0, 0, now.Location())},
 		{"oct 7, 1970", time.Date(1970, 10, 7, 0, 0, 0, 0, now.Location())},
+		{"oct 7 1970", time.Date(1970, 10, 7, 0, 0, 0, 0, now.Location())},
 		{"oct. 7, 1970", time.Date(1970, 10, 7, 0, 0, 0, 0, now.Location())},
 		{"September 17, 2012 UTC+7", time.Date(2012, 9, 17, 10, 9, 0, 0, fixedZone(7))},
 		{"September 17, 2012", time.Date(2012, 9, 17, 10, 9, 0, 0, now.Location())},
 		{"7 oct 1970", time.Date(1970, 10, 7, 0, 0, 0, 0, now.Location())},
+		{"7 oct, 1970", time.Date(1970, 10, 7, 0, 0, 0, 0, now.Location())},
 		{"03 February 2013", time.Date(2013, 2, 3, 0, 0, 0, 0, now.Location())},
 		{"2 July 2013", time.Date(2013, 7, 2, 0, 0, 0, 0, now.Location())},
 		// yyyy/mm/dd
@@ -348,6 +351,10 @@ func location(locStr string) *time.Location {
 		panic(fmt.Sprintf("loading location %q: %v", locStr, err))
 	}
 	return l
+}
+
+func timeInLocation(t time.Time, l *time.Location) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), l)
 }
 
 func TestParse_withStuffAtEnd(t *testing.T) {

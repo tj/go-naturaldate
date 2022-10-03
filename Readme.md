@@ -30,5 +30,28 @@ Here are some examples of the types of expressions currently supported:
 - next January
 - last February
 - next December 25th at 7:30am
+- next December 25th at 7:30am UTC-7
 - November 3rd, 1986 at 4:30pm
+- january 2017
+- january, 2017
+- oct 7, 1970
+- oct 7 1970
+- 7 oct 1970
+- 7 oct, 1970
+- September 17, 2012 UTC+7
+- September 17, 2012
+- 03 February 2013
+- 2 July 2013
+- 2014/3/31
+- 2014/3/31 UTC
+- 2014/3/31 UTC+1
+- 2014/03/31
+- 2014/03/31 UTC-1
+- 2014-04-26
+- 2014-4-26
+- 2014-4-6
+- 31/3/2014 UTC-8
+- 31-3-2014 UTC-8
+- 31/3/2014
+- 31-3-2014
 - See the [tests](./naturaldate_test.go) for more examples
