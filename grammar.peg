@@ -14,7 +14,7 @@ type parser Peg {
 }
 
 Query
-  <- <_ Expr> { p.match = text }
+  <- <_ Expr _ Zone?> { p.match = text }
 
 Expr
   <- NOW
@@ -216,8 +216,29 @@ RelativeWeekdays
 DayOfMonth <- Number Ordinal? { p.dayOfMonth = p.number }
 
 Time
-  <- Clock12Hour
-   / Clock24Hour 
+  <- Clock12Hour _
+   / Clock24Hour _
+
+Zone
+  <- UTC < ([-+][0-9])? >
+    {
+       if text == "" {
+          t := p.t
+          p.t = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), time.UTC)
+       } else {
+          offset, err := strconv.Atoi(text)
+          if err != nil {
+            panic(err)
+          }
+          name := fmt.Sprintf("UTC+%d", offset)
+          if offset < 0 {
+              name = fmt.Sprintf("UTC-%d", -offset)
+          }
+          tz := time.FixedZone(name, offset)
+          t := p.t
+          p.t = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), tz)
+       }
+    }
 
 Clock12Hour
   <- Number
@@ -339,6 +360,7 @@ AT         <- 'at' _
 ON         <- 'on' _
 COMMA      <- ',' _
 DOT        <- '.' _
+UTC        <- 'utc' _
 _
   <- Whitespace*
 
