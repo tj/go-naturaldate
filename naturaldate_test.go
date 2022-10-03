@@ -197,7 +197,9 @@ func TestParse_goodTimes(t *testing.T) {
 		{`next sunday at 22:45`, dateAtTime(nextWeekday(now, time.Sunday), 22, 45, 0)},
 		{`next sunday at 22:45`, dateAtTime(nextWeekday(now, time.Sunday), 22, 45, 0)},
 		{`November 3rd, 1986 at 4:30pm`, time.Date(1986, 11, 3, 12+4, 30, 0, 0, now.Location())},
+		{"September 17, 2012 at 10:09am UTC", time.Date(2012, 9, 17, 10, 9, 0, 0, time.UTC)},
 		{"September 17, 2012 at 10:09am UTC-8", time.Date(2012, 9, 17, 10, 9, 0, 0, fixedZone(-8))},
+		{"September 17, 2012 at 10:09am UTC+8", time.Date(2012, 9, 17, 10, 9, 0, 0, fixedZone(8))},
 		{"September 17, 2012, 10:11:09", time.Date(2012, 9, 17, 10, 11, 9, 0, now.Location())},
 		{"September 17, 2012, 10:11", time.Date(2012, 9, 17, 10, 11, 0, 0, now.Location())},
 		{"September 17, 2012 10:11", time.Date(2012, 9, 17, 10, 11, 0, 0, now.Location())},
@@ -303,7 +305,7 @@ func TestParse_goodDays(t *testing.T) {
 		{"September 17, 2012", time.Date(2012, 9, 17, 10, 9, 0, 0, now.Location())},
 		{"7 oct 1970", time.Date(1970, 10, 7, 0, 0, 0, 0, now.Location())},
 		{"03 February 2013", time.Date(2013, 2, 3, 0, 0, 0, 0, now.Location())},
-		{"2 July 2013", time.Date(2013, 1, 2, 0, 0, 0, 0, now.Location())},
+		{"2 July 2013", time.Date(2013, 7, 2, 0, 0, 0, 0, now.Location())},
 		// yyyy/mm/dd
 		{"2014/3/31", time.Date(2014, 3, 31, 0, 0, 0, 0, now.Location())},
 		{"2014/3/31 UTC", time.Date(2014, 3, 31, 0, 0, 0, 0, location("UTC"))},
@@ -328,7 +330,11 @@ func TestParse_goodDays(t *testing.T) {
 }
 
 func fixedZone(offset int) *time.Location {
-	return time.FixedZone("", offset)
+	name := fmt.Sprintf("UTC+%d", offset)
+	if offset < 0 {
+		name = fmt.Sprintf("UTC-%d", -offset)
+	}
+	return time.FixedZone(name, offset)
 }
 
 func location(locStr string) *time.Location {
