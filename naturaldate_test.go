@@ -197,6 +197,12 @@ func TestParse_goodTimes(t *testing.T) {
 		{`next sunday at 22:45`, dateAtTime(nextWeekday(now, time.Sunday), 22, 45, 0)},
 		{`next sunday at 22:45`, dateAtTime(nextWeekday(now, time.Sunday), 22, 45, 0)},
 		{`November 3rd, 1986 at 4:30pm`, time.Date(1986, 11, 3, 12+4, 30, 0, 0, now.Location())},
+		{"September 17, 2012 at 10:09am UTC-8", time.Date(2012, 9, 17, 10, 9, 0, 0, fixedZone(-8))},
+		{"September 17, 2012, 10:11:09", time.Date(2012, 9, 17, 10, 11, 9, 0, now.Location())},
+		{"September 17, 2012, 10:11", time.Date(2012, 9, 17, 10, 11, 0, 0, now.Location())},
+		{"September 17, 2012 10:11", time.Date(2012, 9, 17, 10, 11, 0, 0, now.Location())},
+		{"September 17 2012 10:11", time.Date(2012, 9, 17, 10, 11, 0, 0, now.Location())},
+		{"September 17 2012 at 10:11", time.Date(2012, 9, 17, 10, 11, 0, 0, now.Location())},
 	}
 
 	for _, c := range cases {
@@ -293,10 +299,8 @@ func TestParse_goodDays(t *testing.T) {
 		{"april 3, 2017", time.Date(2017, 4, 3, 0, 0, 0, 0, now.Location())},
 		{"oct 7, 1970", time.Date(1970, 10, 7, 0, 0, 0, 0, now.Location())},
 		{"oct. 7, 1970", time.Date(1970, 10, 7, 0, 0, 0, 0, now.Location())},
-		{"September 17, 2012 at 10:09am UTC-8", time.Date(2012, 9, 17, 10, 9, 0, 0, fixedZone(-8))},
 		{"September 17, 2012 UTC+7", time.Date(2012, 9, 17, 10, 9, 0, 0, fixedZone(7))},
 		{"September 17, 2012", time.Date(2012, 9, 17, 10, 9, 0, 0, now.Location())},
-		{"September 17, 2012, 10:10:09", time.Date(2012, 9, 17, 10, 10, 9, 0, now.Location())},
 		{"7 oct 1970", time.Date(1970, 10, 7, 0, 0, 0, 0, now.Location())},
 		{"03 February 2013", time.Date(2013, 2, 3, 0, 0, 0, 0, now.Location())},
 		{"2 July 2013", time.Date(2013, 1, 2, 0, 0, 0, 0, now.Location())},
