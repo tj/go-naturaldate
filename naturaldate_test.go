@@ -1,6 +1,7 @@
 package naturaldate
 
 import (
+	"fmt"
 	"log"
 	"strings"
 	"testing"
@@ -240,6 +241,8 @@ func TestParse_goodDays(t *testing.T) {
 		{`a month from now`, now.AddDate(0, 1, 0)},
 		{`1 month from now`, now.AddDate(0, 1, 0)},
 		{`2 months from now`, now.AddDate(0, 2, 0)},
+		{`last january`, prevMonth(now, time.January)},
+		{`next january`, nextMonth(now, time.January)},
 
 		// years
 		{`last year`, truncateYear(now.AddDate(-1, 0, 0))},
@@ -264,6 +267,7 @@ func TestParse_goodDays(t *testing.T) {
 		{`past sunday`, prevWeekday(now, time.Sunday)},
 		{`last monday`, prevWeekday(now, time.Monday)},
 		{`last tuesday`, prevWeekday(now, time.Tuesday)},
+		{`previous tuesday`, prevWeekday(now, time.Tuesday)},
 		{`last wednesday`, prevWeekday(now, time.Wednesday)},
 		{`last thursday`, prevWeekday(now, time.Thursday)},
 		{`last friday`, prevWeekday(now, time.Friday)},
@@ -282,14 +286,28 @@ func TestParse_goodDays(t *testing.T) {
 		{`last january`, prevMonth(now, time.January)},
 		{`next january`, nextMonth(now, time.January)},
 
+		// absolute dates
 		{"january 2017", time.Date(2017, 1, 1, 0, 0, 0, 0, now.Location())},
 		{"january, 2017", time.Date(2017, 1, 1, 0, 0, 0, 0, now.Location())},
 		{"april 3 2017", time.Date(2017, 4, 3, 0, 0, 0, 0, now.Location())},
 		{"april 3, 2017", time.Date(2017, 4, 3, 0, 0, 0, 0, now.Location())},
-
-		{`previous tuesday`, prevWeekday(now, time.Tuesday)},
-		{`last january`, prevMonth(now, time.January)},
-		{`next january`, nextMonth(now, time.January)},
+		{"oct 7, 1970", time.Date(1970, 10, 7, 0, 0, 0, 0, now.Location())},
+		{"oct. 7, 1970", time.Date(1970, 10, 7, 0, 0, 0, 0, now.Location())},
+		{"September 17, 2012 at 10:09am UTC-8", time.Date(2012, 9, 17, 10, 9, 0, 0, fixedZone(-8))},
+		{"September 17, 2012 UTC+7", time.Date(2012, 9, 17, 10, 9, 0, 0, fixedZone(7))},
+		{"September 17, 2012", time.Date(2012, 9, 17, 10, 9, 0, 0, now.Location())},
+		{"September 17, 2012, 10:10:09", time.Date(2012, 9, 17, 10, 10, 9, 0, now.Location())},
+		{"7 oct 1970", time.Date(1970, 10, 7, 0, 0, 0, 0, now.Location())},
+		{"03 February 2013", time.Date(2013, 2, 3, 0, 0, 0, 0, now.Location())},
+		{"2 July 2013", time.Date(2013, 1, 2, 0, 0, 0, 0, now.Location())},
+		// yyyy/mm/dd
+		{"2014/3/31", time.Date(2014, 3, 31, 0, 0, 0, 0, now.Location())},
+		{"2014/3/31 UTC", time.Date(2014, 3, 31, 0, 0, 0, 0, location("UTC"))},
+		{"2014/3/31 UTC+1", time.Date(2014, 3, 31, 0, 0, 0, 0, fixedZone(1))},
+		{"2014/03/31", time.Date(2014, 3, 31, 0, 0, 0, 0, now.Location())},
+		{"2014/03/31 UTC-1", time.Date(2014, 3, 31, 0, 0, 0, 0, fixedZone(-1))},
+		{"2014-04-26", time.Date(2014, 4, 26, 0, 0, 0, 0, now.Location())},
+		{"2014-04", time.Date(2014, 4, 0, 0, 0, 0, 0, now.Location())},
 	}
 
 	for _, c := range cases {
@@ -303,6 +321,18 @@ func TestParse_goodDays(t *testing.T) {
 			assert.Equal(t, strings.ToLower(c.Input), match)
 		})
 	}
+}
+
+func fixedZone(offset int) *time.Location {
+	return time.FixedZone("", offset)
+}
+
+func location(locStr string) *time.Location {
+	l, err := time.LoadLocation(locStr)
+	if err != nil {
+		panic(fmt.Sprintf("loading location %q: %v", locStr, err))
+	}
+	return l
 }
 
 func TestParse_withStuffAtEnd(t *testing.T) {
