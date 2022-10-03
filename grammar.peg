@@ -286,18 +286,18 @@ Weekday
   / 'saturday' _  { p.weekday = time.Saturday }
 
 Month
-  <- 'january' _  { p.month = time.January }
-  / 'february' _  { p.month = time.February }
-  / 'march' _     { p.month = time.March }
-  / 'april' _     { p.month = time.April }
+  <- ('january' / 'jan' DOT?) _  { p.month = time.January }
+  / ('february' / 'feb' DOT?) _  { p.month = time.February }
+  / ('march' / 'mar' DOT?) _     { p.month = time.March }
+  / ('april' / 'apr') _     { p.month = time.April }
   / 'may' _       { p.month = time.May }
-  / 'june' _      { p.month = time.June }
-  / 'july' _      { p.month = time.July }
-  / 'august' _    { p.month = time.August }
-  / 'september' _ { p.month = time.September }
-  / 'october' _   { p.month = time.October }
-  / 'november' _  { p.month = time.November }
-  / 'december' _  { p.month = time.December }
+  / ('june' / 'jun' DOT?) _      { p.month = time.June }
+  / ('july' / 'jul' DOT?) _      { p.month = time.July }
+  / ('august' / 'aug' DOT?) _    { p.month = time.August }
+  / ('september' / 'sep' DOT?) _ { p.month = time.September }
+  / ('october' / 'oct' DOT?) _   { p.month = time.October }
+  / ('november' / 'nov' DOT?) _  { p.month = time.November }
+  / ('december' / 'dec' DOT?) _  { p.month = time.December }
 
 In
   <- IN _        { p.number = 1}
@@ -336,6 +336,7 @@ LAST       <- ('last' / 'past' / 'previous') _
 AT         <- 'at' _
 ON         <- 'on' _
 COMMA      <- ',' _
+DOT        <- '.' _
 _
   <- Whitespace*
 
