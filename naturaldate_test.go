@@ -315,8 +315,8 @@ func TestParse_goodDays(t *testing.T) {
 		{"2014-04-26", time.Date(2014, 4, 26, 0, 0, 0, 0, now.Location())},
 		{"2014-4-26", time.Date(2014, 4, 26, 0, 0, 0, 0, now.Location())},
 		{"2014-4-6", time.Date(2014, 4, 6, 0, 0, 0, 0, now.Location())},
-		{"2014-04", time.Date(2014, 4, 0, 0, 0, 0, 0, now.Location())},
-		{"2014-4", time.Date(2014, 4, 0, 0, 0, 0, 0, now.Location())},
+		{"2014-04", time.Date(2014, 4, 1, 0, 0, 0, 0, now.Location())},
+		{"2014-4", time.Date(2014, 4, 1, 0, 0, 0, 0, now.Location())},
 	}
 
 	for _, c := range cases {
