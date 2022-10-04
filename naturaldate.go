@@ -259,8 +259,18 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		d := n.Child[0].Result.(int)
 		n.Result = ref.AddDate(0, 0, d)
 	})
+	minutesLabel := gp.Regex(`minutes?`)
+	xMinutesAgo := gp.Seq(number, minutesLabel, "ago").Map(func(n *gp.Result) {
+		m := n.Child[0].Result.(int)
+		n.Result = ref.Add(-time.Duration(m) * time.Minute)
+	})
+	xMinutesFromNow := gp.Seq(number, minutesLabel, gp.Any("hence", gp.Seq("from", "now"))).Map(func(n *gp.Result) {
+		m := n.Child[0].Result.(int)
+		n.Result = ref.Add(time.Duration(m) * time.Minute)
+	})
 	p := gp.AnyWithName("datetime",
 		now, ansiC, rubyDate, rfc1123Z, rfc3339, dateTime,
+		xMinutesAgo, xMinutesFromNow,
 		xDaysAgo, xDaysFromNow,
 		lastSpecificMonth, nextSpecificMonth,
 		lastYear, nextYear,
