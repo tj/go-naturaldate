@@ -17,13 +17,20 @@ var day = time.Hour * 24
 var week = time.Hour * 24 * 7
 
 // Parse query string.
-func Parse(s string, ref time.Time) (time.Time, string, error) {
-	p := gp.AnyWithName("datetime", "now")
-	_, err := gp.Run(p, s)
+func Parse(s string, ref time.Time) (time.Time, error) {
+	// lastMonth := gp.Bind("last month", lm)
+	lastMonth := gp.Seq("last", "month").Map(func(n *gp.Result) {
+		n.Result = truncateDay(ref.AddDate(0, -1, 0))
+	})
+	now := gp.Bind("now", ref)
+	p := gp.AnyWithName("datetime",
+		now, lastMonth)
+	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
 	if err != nil {
-		return time.Time{}, "", fmt.Errorf("running parser: %w", err)
+		return time.Time{}, fmt.Errorf("running parser: %w", err)
 	}
-	return ref, "now", nil
+	t := result.(time.Time)
+	return t, nil
 }
 
 // prevWeekday returns the previous week day relative to time t.
@@ -82,13 +89,6 @@ func prevMonth(t time.Time, month time.Month) time.Time {
 func truncateDay(t time.Time) time.Time {
 	y, m, d := t.Date()
 	return time.Date(y, m, d, 0, 0, 0, 0, t.Location())
-}
-
-// truncateDayIfNoTime truncates p.t to the day if p has no time.
-func truncateDayIfNoTime(p *parser) {
-	if !p.hasTime {
-		p.t = truncateDay(p.t)
-	}
 }
 
 // truncateYear returns a date truncated to the year.

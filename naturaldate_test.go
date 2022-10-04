@@ -3,7 +3,6 @@ package naturaldate
 import (
 	"fmt"
 	"log"
-	"strings"
 	"testing"
 	"time"
 
@@ -148,7 +147,7 @@ func TestParse_bad(t *testing.T) {
 	for _, c := range badCases {
 		t.Run(c.input, func(t *testing.T) {
 			now := time.Time{}
-			v, _, err := Parse(c.input, now)
+			v, err := Parse(c.input, now)
 			if err == nil {
 				t.Errorf("err is nil, result is %v", v)
 			}
@@ -229,12 +228,11 @@ func TestParse_goodTimes(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.Input, func(t *testing.T) {
-			v, match, err := Parse(c.Input, now)
+			v, err := Parse(c.Input, now)
 			if err != nil {
 				t.Fatal(err)
 			}
 			assert.Equal(t, c.WantTime, v)
-			assert.Equal(t, strings.ToLower(c.Input), match)
 		})
 	}
 }
@@ -345,13 +343,12 @@ func TestParse_goodDays(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.Input, func(t *testing.T) {
-			v, match, err := Parse(c.Input, now)
+			v, err := Parse(c.Input, now)
 			if err != nil {
 				t.Fatal(err)
 			}
 			want := truncateDay(c.WantTime)
 			assert.Equal(t, want, v)
-			assert.Equal(t, strings.ToLower(c.Input), match)
 		})
 	}
 }
@@ -390,12 +387,11 @@ func TestParse_withStuffAtEnd(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(c.Input, func(t *testing.T) {
-			v, match, err := Parse(c.Input, now)
+			v, err := Parse(c.Input, now)
 			if err != nil {
 				t.Fatal(err)
 			}
 			assert.Equal(t, c.WantTime, v)
-			assert.Equal(t, c.WantMatch, match)
 		})
 	}
 }
@@ -404,7 +400,7 @@ func TestParse_withStuffAtEnd(t *testing.T) {
 func BenchmarkParse(b *testing.B) {
 	b.SetBytes(1)
 	for i := 0; i < b.N; i++ {
-		_, _, err := Parse(`december 23rd 2022 at 5:25pm`, time.Time{})
+		_, err := Parse(`december 23rd 2022 at 5:25pm`, time.Time{})
 		if err != nil {
 			log.Fatalf("error: %s", err)
 		}
