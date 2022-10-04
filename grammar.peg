@@ -30,6 +30,10 @@ Expr
   / RelativeMonthDay AtTime?
   / RelativeMonth
   / RelativeYear
+  / (Weekday COMMA?)? Month DayOfMonth Time Year
+    {
+        fmt.Println("RFCs case")
+    }
   / Date AtTime?
   / Time ON? Date
 
@@ -226,11 +230,11 @@ RelativeWeekdays
 DayOfMonth <- Number Ordinal? { p.dayOfMonth = p.number }
 
 Time
-  <- Clock12Hour _
-   / Clock24Hour _
+  <- Clock12Hour Zone?
+   / Clock24Hour Zone?
 
 Zone
-  <- UTC < ([-+][0-9])? >
+  <- UTC < ([-+][0-9])? > _
     {
        if text == "" {
           t := p.t
@@ -287,7 +291,7 @@ Minutes
     }
 
 Seconds
-  <- ':' Number
+  <- ':' Number _
     {
       t := p.t
       year, month, day := t.Date()
@@ -310,13 +314,13 @@ Number
   / 'ten' _       { p.number = 10 }
 
 Weekday
-  <- 'sunday' _   { p.weekday = time.Sunday }
-  / 'monday' _    { p.weekday = time.Monday }
-  / 'tuesday' _   { p.weekday = time.Tuesday }
-  / 'wednesday' _ { p.weekday = time.Wednesday }
-  / 'thursday' _  { p.weekday = time.Thursday }
-  / 'friday' _    { p.weekday = time.Friday }
-  / 'saturday' _  { p.weekday = time.Saturday }
+  <- ('sunday' / 'sun') _   { p.weekday = time.Sunday }
+  / ('monday' / 'mon') _    { p.weekday = time.Monday }
+  / ('tuesday' / 'tue') _   { p.weekday = time.Tuesday }
+  / ('wednesday' / 'wed') _ { p.weekday = time.Wednesday }
+  / ('thursday' / 'thu') _  { p.weekday = time.Thursday }
+  / ('friday' / 'fri') _    { p.weekday = time.Friday }
+  / ('saturday' / 'sat') _  { p.weekday = time.Saturday }
 
 Month
   <- ('january' / 'jan' DOT?) _  { p.month = time.January }
