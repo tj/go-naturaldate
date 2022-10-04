@@ -14,147 +14,6 @@ func dateAtTime(dateFrom time.Time, hour int, min int, sec int) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day(), hour, min, sec, 0, t.Location())
 }
 
-// Test parsing with inputs that are expected to result in errors.
-func TestParse_bad(t *testing.T) {
-	var badCases = []struct {
-		input string
-	}{
-		{``},
-		{`a`},
-		{`not a date or a time`},
-		{`right now`},
-		{`  right  now  `},
-		{`Message me in 2 minutes`},
-		{`Message me in 2 minutes from now`},
-		{`Remind me in 1 hour`},
-		{`Remind me in 1 hour from now`},
-		{`Remind me in 1 hour and 3 minutes from now`},
-		{`Remind me in an hour`},
-		{`Remind me in an hour from now`},
-		{`Remind me one day from now`},
-		{`Remind me in a day`},
-		{`Remind me in one day`},
-		{`Remind me in one day from now`},
-		{`Message me in a week`},
-		{`Message me in one week`},
-		{`Message me in one week from now`},
-		{`Message me in two weeks from now`},
-		{`Message me two weeks from now`},
-		{`Message me in two weeks`},
-		{`Remind me in 12 months from now at 6am`},
-		{`Remind me in a month`},
-		{`Remind me in 2 months`},
-		{`Remind me in a month from now`},
-		{`Remind me in 2 months from now`},
-		{`Remind me in one year from now`},
-		{`Remind me in a year`},
-		{`Remind me in a year from now`},
-		{`Restart the server in 2 days from now`},
-		{`Remind me on the 5th of next month`},
-		{`Remind me on the 5th of next month at 7am`},
-		{`Remind me at 7am on the 5th of next month`},
-		{`Remind me in one month from now`},
-		{`Remind me in one month from now at 7am`},
-		{`Remind me on the December 25th at 7am`},
-		{`Remind me at 7am on December 25th`},
-		{`Remind me on the 25th of December at 7am`},
-		{`Check logs in the past 5 minutes`},
-
-		// "1 minute" is a duration, not a time.
-		{`1 minute`},
-
-		// "one minute" is also a duration.
-		{`one minute`},
-
-		// "1 hour" is also a duration.
-		{`1 hour`},
-
-		// "1 day" is also a duration.
-		{`1 day`},
-
-		// "1 week" is also a duration.
-		{`1 week`},
-
-		// "1 month" is also a duration.
-		{`1 month`},
-
-		// "next 2 months" is a date range, not a time or a date.
-		{`next 2 months`},
-
-		// Ambiguous weekday inputs:
-		// These are ambiguous because they don't tell whether it's the
-		// previous, next or, in some cases, current instance of the weekday.
-		{`sunday`},
-		{`monday`},
-		{`tuesday`},
-		{`wednesday`},
-		{`thursday`},
-		{`friday`},
-		{`saturday`},
-
-		// Ambiguous month inputs:
-		// These are ambiguous because they don't include the year.
-		{`january`},
-		{`february`},
-		{`march`},
-		{`april`},
-		{`may`},
-		{`june`},
-		{`july`},
-		{`august`},
-		{`september`},
-		{`october`},
-		{`november`},
-
-		// Ambiguous ordinal dates:
-		// These are ambiguous because they don't include the year.
-		{`november 15th`},
-		{`december 1st`},
-		{`december 2nd`},
-		{`december 3rd`},
-		{`december 4th`},
-		{`december 15th`},
-		{`december 23rd`},
-		{`december 23rd 5pm`},
-		{`december 23rd at 5pm`},
-		{`december 23rd at 5:25pm`},
-		{`December 23rd AT 5:25 PM`},
-		{`December 25th at 7am`},
-		{`7am on December 25th`},
-		{`25th of December at 7am`},
-
-		// Ambiguous 12-hour times:
-		// These are ambiguous because they don't include the date.
-		{`10am`},
-		{`10 am`},
-		{`5pm`},
-		{`10:25am`},
-		{`1:05pm`},
-		{`10:25:10am`},
-		{`1:05:10pm`},
-
-		// Ambiguous 24-hour times:
-		// These are ambiguous because they don't include the date.
-		{`10`},
-		{`10:25`},
-		{`10:25:30`},
-		{`17`},
-		{`17:25:30`},
-
-		// Goofy input:
-		{`10:am`},
-	}
-	for _, c := range badCases {
-		t.Run(c.input, func(t *testing.T) {
-			now := time.Time{}
-			v, err := Parse(c.input, now)
-			if err == nil {
-				t.Errorf("err is nil, result is %v", v)
-			}
-		})
-	}
-}
-
 // Test parsing on cases that are expected to parse successfully.
 func TestParse_goodTimes(t *testing.T) {
 	now := time.Date(2022, 9, 29, 2, 48, 33, 123, time.Local)
@@ -404,5 +263,146 @@ func BenchmarkParse(b *testing.B) {
 		if err != nil {
 			log.Fatalf("error: %s", err)
 		}
+	}
+}
+
+// Test parsing with inputs that are expected to result in errors.
+func TestParse_bad(t *testing.T) {
+	var badCases = []struct {
+		input string
+	}{
+		{``},
+		{`a`},
+		{`not a date or a time`},
+		{`right now`},
+		{`  right  now  `},
+		{`Message me in 2 minutes`},
+		{`Message me in 2 minutes from now`},
+		{`Remind me in 1 hour`},
+		{`Remind me in 1 hour from now`},
+		{`Remind me in 1 hour and 3 minutes from now`},
+		{`Remind me in an hour`},
+		{`Remind me in an hour from now`},
+		{`Remind me one day from now`},
+		{`Remind me in a day`},
+		{`Remind me in one day`},
+		{`Remind me in one day from now`},
+		{`Message me in a week`},
+		{`Message me in one week`},
+		{`Message me in one week from now`},
+		{`Message me in two weeks from now`},
+		{`Message me two weeks from now`},
+		{`Message me in two weeks`},
+		{`Remind me in 12 months from now at 6am`},
+		{`Remind me in a month`},
+		{`Remind me in 2 months`},
+		{`Remind me in a month from now`},
+		{`Remind me in 2 months from now`},
+		{`Remind me in one year from now`},
+		{`Remind me in a year`},
+		{`Remind me in a year from now`},
+		{`Restart the server in 2 days from now`},
+		{`Remind me on the 5th of next month`},
+		{`Remind me on the 5th of next month at 7am`},
+		{`Remind me at 7am on the 5th of next month`},
+		{`Remind me in one month from now`},
+		{`Remind me in one month from now at 7am`},
+		{`Remind me on the December 25th at 7am`},
+		{`Remind me at 7am on December 25th`},
+		{`Remind me on the 25th of December at 7am`},
+		{`Check logs in the past 5 minutes`},
+
+		// "1 minute" is a duration, not a time.
+		{`1 minute`},
+
+		// "one minute" is also a duration.
+		{`one minute`},
+
+		// "1 hour" is also a duration.
+		{`1 hour`},
+
+		// "1 day" is also a duration.
+		{`1 day`},
+
+		// "1 week" is also a duration.
+		{`1 week`},
+
+		// "1 month" is also a duration.
+		{`1 month`},
+
+		// "next 2 months" is a date range, not a time or a date.
+		{`next 2 months`},
+
+		// Ambiguous weekday inputs:
+		// These are ambiguous because they don't tell whether it's the
+		// previous, next or, in some cases, current instance of the weekday.
+		{`sunday`},
+		{`monday`},
+		{`tuesday`},
+		{`wednesday`},
+		{`thursday`},
+		{`friday`},
+		{`saturday`},
+
+		// Ambiguous month inputs:
+		// These are ambiguous because they don't include the year.
+		{`january`},
+		{`february`},
+		{`march`},
+		{`april`},
+		{`may`},
+		{`june`},
+		{`july`},
+		{`august`},
+		{`september`},
+		{`october`},
+		{`november`},
+
+		// Ambiguous ordinal dates:
+		// These are ambiguous because they don't include the year.
+		{`november 15th`},
+		{`december 1st`},
+		{`december 2nd`},
+		{`december 3rd`},
+		{`december 4th`},
+		{`december 15th`},
+		{`december 23rd`},
+		{`december 23rd 5pm`},
+		{`december 23rd at 5pm`},
+		{`december 23rd at 5:25pm`},
+		{`December 23rd AT 5:25 PM`},
+		{`December 25th at 7am`},
+		{`7am on December 25th`},
+		{`25th of December at 7am`},
+
+		// Ambiguous 12-hour times:
+		// These are ambiguous because they don't include the date.
+		{`10am`},
+		{`10 am`},
+		{`5pm`},
+		{`10:25am`},
+		{`1:05pm`},
+		{`10:25:10am`},
+		{`1:05:10pm`},
+
+		// Ambiguous 24-hour times:
+		// These are ambiguous because they don't include the date.
+		{`10`},
+		{`10:25`},
+		{`10:25:30`},
+		{`17`},
+		{`17:25:30`},
+
+		// Goofy input:
+		{`10:am`},
+	}
+	for _, c := range badCases {
+		t.Run(c.input, func(t *testing.T) {
+			now := time.Time{}
+			v, err := Parse(c.input, now)
+			if err == nil {
+				t.Errorf("err is nil, result is %v", v)
+			}
+		})
 	}
 }
