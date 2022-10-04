@@ -9,6 +9,9 @@ type parser Peg {
   month time.Month
   dayOfMonth int
   weekday time.Weekday
+  tzSign int
+  tzHour int
+  tzMinute int
   hasTime bool
   match string
 }
@@ -35,7 +38,7 @@ Expr
   / GoTimeFormat
 
 GoTimeFormat
-  <- (Weekday COMMA?)? Month DayOfMonth Time Year
+  <- Weekday Month _ DayOfMonthNum _ Time _ Year
     {
       t := p.t
       p.t = time.Date(p.year, p.month, p.dayOfMonth, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
@@ -61,10 +64,11 @@ Year
   <- < [12][0-9][0-9][0-9] > _ { n, _ := strconv.Atoi(text); p.year = n }
 
 MonthNum
-  <- < [01]?[0-9] > { n, _ := strconv.Atoi(text); p.month = time.Month(n) }
+  <- < [01]?[0-9] > _ { n, _ := strconv.Atoi(text); p.month = time.Month(n) }
 
 DayOfMonthNum
-  <- < [0-3]?[0-9] > { n, _ := strconv.Atoi(text); p.dayOfMonth = n }
+  <- < [0-3][0-9] > _   { n, _ := strconv.Atoi(text); p.dayOfMonth = n }
+  / < [0-9] > _         { n, _ := strconv.Atoi(text); p.dayOfMonth = n }
 
 RelativeMinutes
   <- Number MINUTES AGO
@@ -257,6 +261,29 @@ Zone
           p.t = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), tz)
        }
     }
+  / 'z' _
+    {
+       t := p.t
+       p.t = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), time.UTC)
+    }
+  / < TzSign TzHour ':' TzMinute >
+    {
+       offset := p.tzSign * (p.tzHour*60*60 + p.tzMinute*60)
+       name := text
+       tz := time.FixedZone(name, offset)
+       t := p.t
+       p.t = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), tz)
+    }
+
+TzSign <- < [-+] >
+    {
+       p.tzSign = 1
+       if text == "-" {
+         p.tzSign = -1
+       }
+    }
+TzHour <- < [01][0-9] > { n, _ := strconv.Atoi(text); p.tzHour = n }
+TzMinute <- < [0-5][0-9] > { n, _ := strconv.Atoi(text); p.tzMinute = n }
 
 Clock12Hour
   <- Number
@@ -283,7 +310,7 @@ Clock24Hour
       p.t = time.Date(year, month, day, p.number, 0, 0, 0, p.t.Location())
       p.hasTime = true
     }
-    (Minutes Seconds?)?
+    (Minutes Seconds?)? _
 
 Minutes
   <- ':' Number
@@ -295,7 +322,7 @@ Minutes
     }
 
 Seconds
-  <- ':' Number _
+  <- ':' Number
     {
       t := p.t
       year, month, day := t.Date()

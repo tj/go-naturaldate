@@ -216,12 +216,8 @@ func TestParse_goodTimes(t *testing.T) {
 		// formats from the Go time package:
 		// ANSIC
 		{"Mon Jan  2 15:04:05 2006", time.Date(2006, 1, 2, 15, 4, 5, 0, now.Location())},
-		// UnixDate
-		{"Mon Jan  2 15:04:05 MST 2006", time.Date(2006, 1, 2, 15, 4, 5, 0, location("MST"))},
 		// RubyDate
 		{"Mon Jan 02 15:04:05 -0700 2006", time.Date(2006, 1, 2, 15, 4, 5, 0, fixedZone(-7))},
-		// RFC1123
-		{"Mon, 02 Jan 2006 15:04:05 MST", time.Date(2006, 1, 2, 15, 4, 5, 0, location("MST"))},
 		// RFC1123Z
 		{"Mon, 02 Jan 2006 15:04:05 -0700", time.Date(2006, 1, 2, 15, 4, 5, 0, fixedZone(-7))},
 		// RFC3339
