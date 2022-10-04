@@ -83,8 +83,8 @@ func TestParse_bad(t *testing.T) {
 		{`next 2 months`},
 
 		// Ambiguous weekday inputs:
-		// For example, is it the current Sunday if today happens to be a
-		// Sunday, next Sunday, or the previous Sunday?
+		// These are ambiguous because they don't tell whether it's the
+		// previous, next or, in some cases, current instance of the weekday.
 		{`sunday`},
 		{`monday`},
 		{`tuesday`},
