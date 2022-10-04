@@ -272,10 +272,11 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		now, ansiC, rubyDate, rfc1123Z, rfc3339, dateTime,
 		xMinutesAgo, xMinutesFromNow,
 		xDaysAgo, xDaysFromNow,
+		monthsAgo, monthsFromNow,
+		xYearsAgo, xYearsFromToday,
 		lastSpecificMonth, nextSpecificMonth,
 		lastYear, nextYear,
-		xYearsAgo, xYearsFromToday,
-		monthsAgo, monthsFromNow, nextMo, prevMo)
+		nextMo, prevMo)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("running parser: %w", err)
