@@ -250,8 +250,18 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		y := n.Child[0].Result.(int)
 		n.Result = ref.AddDate(y, 0, 0)
 	})
+	daysLabel := gp.Regex(`days?`)
+	xDaysAgo := gp.Seq(number, daysLabel, "ago").Map(func(n *gp.Result) {
+		d := n.Child[0].Result.(int)
+		n.Result = ref.AddDate(0, 0, -d)
+	})
+	xDaysFromNow := gp.Seq(number, daysLabel, gp.Any("hence", "from", gp.Any("now", "today"))).Map(func(n *gp.Result) {
+		d := n.Child[0].Result.(int)
+		n.Result = ref.AddDate(0, 0, d)
+	})
 	p := gp.AnyWithName("datetime",
 		now, ansiC, rubyDate, rfc1123Z, rfc3339, dateTime,
+		xDaysAgo, xDaysFromNow,
 		lastSpecificMonth, nextSpecificMonth,
 		lastYear, nextYear,
 		xYearsAgo, xYearsFromToday,
