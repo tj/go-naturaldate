@@ -235,9 +235,16 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		t := n.Child[2].Result.(time.Time)
 		n.Result = time.Date(d.Year(), d.Month(), d.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
 	})
+	lastYear := gp.Seq("last", "year").Map(func(n *gp.Result) {
+		n.Result = truncateYear(ref.AddDate(-1, 0, 0))
+	})
+	nextYear := gp.Seq("next", "year").Map(func(n *gp.Result) {
+		n.Result = truncateYear(ref.AddDate(1, 0, 0))
+	})
 	p := gp.AnyWithName("datetime",
 		now, ansiC, rubyDate, rfc1123Z, rfc3339, dateTime,
 		lastSpecificMonth, nextSpecificMonth,
+		lastYear, nextYear,
 		monthsAgo, monthsFromNow, nextMo, prevMo)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
 	if err != nil {
