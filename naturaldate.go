@@ -5,8 +5,9 @@ package naturaldate
 
 import (
 	"fmt"
-	"strings"
 	"time"
+
+	gp "github.com/ijt/goparsify"
 )
 
 // day duration.
@@ -17,22 +18,12 @@ var week = time.Hour * 24 * 7
 
 // Parse query string.
 func Parse(s string, ref time.Time) (time.Time, string, error) {
-	p := &parser{
-		Buffer: strings.ToLower(s),
-		t:      ref,
+	p := gp.AnyWithName("datetime", "now")
+	_, err := gp.Run(p, s)
+	if err != nil {
+		return time.Time{}, "", fmt.Errorf("running parser: %w", err)
 	}
-
-	if err := p.Init(); err != nil {
-		return time.Time{}, "", fmt.Errorf("initializing parser: %w", err)
-	}
-
-	if err := p.Parse(); err != nil {
-		return time.Time{}, "", err
-	}
-
-	p.Execute()
-	// p.PrintSyntaxTree()
-	return p.t, p.match, nil
+	return ref, "now", nil
 }
 
 // prevWeekday returns the previous week day relative to time t.
