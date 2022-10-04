@@ -5,6 +5,8 @@ package naturaldate
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	gp "github.com/ijt/goparsify"
@@ -18,19 +20,111 @@ var week = time.Hour * 24 * 7
 
 // Parse query string.
 func Parse(s string, ref time.Time) (time.Time, error) {
-	// lastMonth := gp.Bind("last month", lm)
+	s = strings.ToLower(s)
+
+	now := gp.Bind("now", ref)
 	lastMonth := gp.Seq("last", "month").Map(func(n *gp.Result) {
 		n.Result = truncateDay(ref.AddDate(0, -1, 0))
 	})
-	now := gp.Bind("now", ref)
+	weekday := gp.AnyWithName("weekday", "mon", "tue", "wed", "thu", "fri", "sat", "sun")
+	month := gp.AnyWithName("month", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec").Map(func(n *gp.Result) {
+		t, err := time.Parse("Jan", n.Token)
+		if err != nil {
+			panic(fmt.Sprintf("identifying month: %v", err))
+		}
+		n.Result = t.Month()
+	})
+	dayOfMonth := gp.Regex(`[0-3]?\d`).Map(func(n *gp.Result) {
+		d, err := strconv.Atoi(n.Token)
+		if err != nil {
+			panic(fmt.Sprintf("parsing day of month: %v", err))
+		}
+		n.Result = d
+	})
+	hour := gp.Regex(`[0-2]?\d`).Map(func(n *gp.Result) {
+		h, err := strconv.Atoi(n.Token)
+		if err != nil {
+			panic(fmt.Sprintf("parsing hour: %v", err))
+		}
+		n.Result = h
+	})
+	minute := gp.Regex(`[0-5]?\d`).Map(func(n *gp.Result) {
+		m, err := strconv.Atoi(n.Token)
+		if err != nil {
+			panic(fmt.Sprintf("parsing minute: %v", err))
+		}
+		n.Result = m
+	})
+	second := gp.Regex(`[0-5]?\d`).Map(func(n *gp.Result) {
+		s, err := strconv.Atoi(n.Token)
+		if err != nil {
+			panic(fmt.Sprintf("parsing second: %v", err))
+		}
+		n.Result = s
+	})
+	hourMinuteSecond := gp.Seq(hour, ":", minute, ":", second).Map(func(n *gp.Result) {
+		h := n.Child[0].Result.(int)
+		m := n.Child[2].Result.(int)
+		s := n.Child[4].Result.(int)
+		n.Result = time.Date(1, 1, 1, h, m, s, 0, ref.Location())
+	})
+	zoneHour := gp.Regex(`[-+][01]\d`).Map(func(n *gp.Result) {
+		h, err := strconv.Atoi(n.Token)
+		if err != nil {
+			panic(fmt.Sprintf("parsing time zone hour: %v", err))
+		}
+		n.Result = h
+	})
+	zone := gp.Seq(zoneHour, minute).Map(func(n *gp.Result) {
+		h := n.Child[0].Result.(int)
+		m := n.Child[1].Result.(int)
+		n.Result = fixedZoneHM(h, m)
+	})
+	year := gp.Regex(`[12]\d{3}`).Map(func(n *gp.Result) {
+		y, err := strconv.Atoi(n.Token)
+		if err != nil {
+			panic(fmt.Sprintf("parsing year: %v", err))
+		}
+		n.Result = y
+	})
+	ansiC := gp.Seq(weekday, month, dayOfMonth, hourMinuteSecond, year).Map(func(n *gp.Result) {
+		m := n.Child[1].Result.(time.Month)
+		d := n.Child[2].Result.(int)
+		t := n.Child[3].Result.(time.Time)
+		y := n.Child[4].Result.(int)
+		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, ref.Location())
+	})
+	rubyDate := gp.Seq(weekday, month, dayOfMonth, hourMinuteSecond, zone, year).Map(func(n *gp.Result) {
+		m := n.Child[1].Result.(time.Month)
+		d := n.Child[2].Result.(int)
+		t := n.Child[3].Result.(time.Time)
+		zone := n.Child[4].Result.(*time.Location)
+		y := n.Child[5].Result.(int)
+		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, zone)
+	})
 	p := gp.AnyWithName("datetime",
-		now, lastMonth)
+		now, lastMonth, ansiC, rubyDate)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("running parser: %w", err)
 	}
 	t := result.(time.Time)
 	return t, nil
+}
+
+func fixedZoneHM(h, m int) *time.Location {
+	offset := h*60*60 + m*60
+	sign := "+"
+	if h < 0 {
+		sign = "-"
+		h = -h
+	}
+	name := fmt.Sprintf("%s%02d:%02d", sign, h, m)
+	return time.FixedZone(name, offset)
+}
+
+func fixedZone(offsetHours int) *time.Location {
+	return fixedZoneHM(offsetHours, 0)
 }
 
 // prevWeekday returns the previous week day relative to time t.
