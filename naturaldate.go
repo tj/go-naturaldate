@@ -82,6 +82,10 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		m := n.Child[1].Result.(time.Month)
 		n.Result = prevMonth(ref, m)
 	})
+	nextSpecificMonth := gp.Seq("next", month).Map(func(n *gp.Result) {
+		m := n.Child[1].Result.(time.Month)
+		n.Result = nextMonth(ref, m)
+	})
 	monthNum := gp.Regex(`[01]?\d`).Map(func(n *gp.Result) {
 		m, err := strconv.Atoi(n.Token)
 		if err != nil {
@@ -233,7 +237,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	})
 	p := gp.AnyWithName("datetime",
 		now, ansiC, rubyDate, rfc1123Z, rfc3339, dateTime,
-		lastSpecificMonth,
+		lastSpecificMonth, nextSpecificMonth,
 		monthsAgo, monthsFromNow, nextMo, prevMo)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
 	if err != nil {
