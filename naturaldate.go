@@ -241,10 +241,20 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	nextYear := gp.Seq("next", "year").Map(func(n *gp.Result) {
 		n.Result = truncateYear(ref.AddDate(1, 0, 0))
 	})
+	yearsLabel := gp.Regex(`years?`)
+	xYearsAgo := gp.Seq(number, yearsLabel, "ago").Map(func(n *gp.Result) {
+		y := n.Child[0].Result.(int)
+		n.Result = ref.AddDate(-y, 0, 0)
+	})
+	xYearsFromToday := gp.Seq(number, yearsLabel, gp.Any("hence", gp.Seq("from", gp.Any("now", "today")))).Map(func(n *gp.Result) {
+		y := n.Child[0].Result.(int)
+		n.Result = ref.AddDate(y, 0, 0)
+	})
 	p := gp.AnyWithName("datetime",
 		now, ansiC, rubyDate, rfc1123Z, rfc3339, dateTime,
 		lastSpecificMonth, nextSpecificMonth,
 		lastYear, nextYear,
+		xYearsAgo, xYearsFromToday,
 		monthsAgo, monthsFromNow, nextMo, prevMo)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
 	if err != nil {

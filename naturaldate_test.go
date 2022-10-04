@@ -82,6 +82,13 @@ func TestParse_goodTimes(t *testing.T) {
 		// RFC3339
 		{"2006-01-02T15:04:05Z", time.Date(2006, 1, 2, 15, 4, 5, 0, time.UTC)},
 		{"1990-12-31T15:59:60-08:00", time.Date(1990, 12, 31, 15, 59, 60, 0, fixedZone(-8))},
+
+		// years
+		{`one year ago`, now.AddDate(-1, 0, 0)},
+		{`one year from now`, now.AddDate(1, 0, 0)},
+		{`one year from today`, now.AddDate(1, 0, 0)},
+		{`two years ago`, now.AddDate(-2, 0, 0)},
+		{`2 years ago`, now.AddDate(-2, 0, 0)},
 	}
 
 	for _, c := range cases {
@@ -132,11 +139,6 @@ func TestParse_goodDays(t *testing.T) {
 		// years
 		{`last year`, truncateYear(now.AddDate(-1, 0, 0))},
 		{`next year`, truncateYear(now.AddDate(1, 0, 0))},
-		{`one year ago`, truncateYear(now.AddDate(-1, 0, 0))},
-		{`one year from now`, truncateYear(now.AddDate(1, 0, 0))},
-		{`one year from today`, truncateYear(now.AddDate(1, 0, 0))},
-		{`two years ago`, truncateYear(now.AddDate(-2, 0, 0))},
-		{`2 years ago`, truncateYear(now.AddDate(-2, 0, 0))},
 
 		// today
 		{`today`, now},
