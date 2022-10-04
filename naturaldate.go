@@ -27,13 +27,24 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = truncateDay(ref.AddDate(0, -1, 0))
 	})
 	weekday := gp.AnyWithName("weekday", "mon", "tue", "wed", "thu", "fri", "sat", "sun")
-	month := gp.AnyWithName("month", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec").Map(func(n *gp.Result) {
+	longMonth := gp.AnyWithName("long month",
+		"january", "february", "march", "april",
+		/* may is already short */ "june", "july", "august", "september",
+		"october", "november", "december").Map(func(n *gp.Result) {
+		t, err := time.Parse("January", n.Token)
+		if err != nil {
+			panic(fmt.Sprintf("identifying month (long): %v", err))
+		}
+		n.Result = t.Month()
+	})
+	shortMonth := gp.AnyWithName("month", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec").Map(func(n *gp.Result) {
 		t, err := time.Parse("Jan", n.Token)
 		if err != nil {
 			panic(fmt.Sprintf("identifying month: %v", err))
 		}
 		n.Result = t.Month()
 	})
+	month := gp.AnyWithName("month", longMonth, shortMonth)
 	monthNum := gp.Regex(`[01]?\d`).Map(func(n *gp.Result) {
 		m, err := strconv.Atoi(n.Token)
 		if err != nil {
@@ -71,10 +82,20 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		}
 		n.Result = s
 	})
-	hourMinuteSecond := gp.Seq(hour, ":", minute, ":", second).Map(func(n *gp.Result) {
+	colonSecond := gp.Seq(":", second).Map(func(n *gp.Result) {
+		n.Result = n.Child[1].Result
+	})
+	colonMinute := gp.Seq(":", minute).Map(func(n *gp.Result) {
+		n.Result = n.Child[1].Result
+	})
+	hourMinuteSecond := gp.Seq(hour, colonMinute, gp.Maybe(colonSecond)).Map(func(n *gp.Result) {
 		h := n.Child[0].Result.(int)
-		m := n.Child[2].Result.(int)
-		s := n.Child[4].Result.(int)
+		m := n.Child[1].Result.(int)
+		s := 0
+		c2 := n.Child[2].Result
+		if c2 != nil {
+			s = c2.(int)
+		}
 		n.Result = time.Date(1, 1, 1, h, m, s, 0, ref.Location())
 	})
 	zoneHour := gp.Regex(`[-+][01]\d`).Map(func(n *gp.Result) {
@@ -129,8 +150,28 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		z := n.Child[7].Result.(*time.Location)
 		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, z)
 	})
+	date := gp.Seq(month, dayOfMonth, gp.Maybe(","), year).Map(func(n *gp.Result) {
+		m := n.Child[0].Result.(time.Month)
+		d := n.Child[1].Result.(int)
+		y := n.Child[3].Result.(int)
+		n.Result = time.Date(y, m, d, 0, 0, 0, 0, ref.Location())
+	})
+	timeWithMaybeZone := gp.Seq(gp.Maybe("at"), hourMinuteSecond, gp.Maybe(zone)).Map(func(n *gp.Result) {
+		t := n.Child[1].Result.(time.Time)
+		z := ref.Location()
+		c2 := n.Child[2].Result
+		if c2 != nil {
+			z = c2.(*time.Location)
+		}
+		n.Result = time.Date(1, 1, 1, t.Hour(), t.Minute(), t.Second(), 0, z)
+	})
+	dateTime := gp.Seq(date, gp.Maybe(","), timeWithMaybeZone).Map(func(n *gp.Result) {
+		d := n.Child[0].Result.(time.Time)
+		t := n.Child[2].Result.(time.Time)
+		n.Result = time.Date(d.Year(), d.Month(), d.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
+	})
 	p := gp.AnyWithName("datetime",
-		now, lastMonth, ansiC, rubyDate, rfc1123Z, rfc3339)
+		now, lastMonth, ansiC, rubyDate, rfc1123Z, rfc3339, dateTime)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("running parser: %w", err)
