@@ -356,12 +356,13 @@ func TestParse_goodDays(t *testing.T) {
 	}
 }
 
-func fixedZone(offset int) *time.Location {
-	name := fmt.Sprintf("UTC+%d", offset)
-	if offset < 0 {
-		name = fmt.Sprintf("UTC-%d", -offset)
+func fixedZone(offsetHours int) *time.Location {
+	name := fmt.Sprintf("UTC+%d", offsetHours)
+	if offsetHours < 0 {
+		name = fmt.Sprintf("UTC-%d", -offsetHours)
 	}
-	return time.FixedZone(name, offset)
+	offsetSec := offsetHours * 60 * 60
+	return time.FixedZone(name, offsetSec)
 }
 
 func location(locStr string) *time.Location {
