@@ -83,31 +83,6 @@ func TestParse_goodTimes(t *testing.T) {
 		{"2006-01-02T15:04:05Z", time.Date(2006, 1, 2, 15, 4, 5, 0, time.UTC)},
 		{"1990-12-31T15:59:60-08:00", time.Date(1990, 12, 31, 15, 59, 60, 0, fixedZone(-8))},
 
-		// years
-		{`one year ago`, now.AddDate(-1, 0, 0)},
-		{`one year from now`, now.AddDate(1, 0, 0)},
-		{`one year from today`, now.AddDate(1, 0, 0)},
-		{`two years ago`, now.AddDate(-2, 0, 0)},
-		{`2 years ago`, now.AddDate(-2, 0, 0)},
-	}
-
-	for _, c := range cases {
-		t.Run(c.Input, func(t *testing.T) {
-			v, err := Parse(c.Input, now)
-			if err != nil {
-				t.Fatal(err)
-			}
-			assert.Equal(t, c.WantTime, v)
-		})
-	}
-}
-
-func TestParse_goodDays(t *testing.T) {
-	now := time.Date(2022, 9, 29, 2, 48, 33, 123, time.Local)
-	var cases = []struct {
-		Input    string
-		WantTime time.Time
-	}{
 		// days
 		{`one day ago`, now.Add(-24 * time.Hour)},
 		{`1 day ago`, now.Add(-24 * time.Hour)},
@@ -136,6 +111,31 @@ func TestParse_goodDays(t *testing.T) {
 		{`last january`, prevMonth(now, time.January)},
 		{`next january`, nextMonth(now, time.January)},
 
+		// years
+		{`one year ago`, now.AddDate(-1, 0, 0)},
+		{`one year from now`, now.AddDate(1, 0, 0)},
+		{`one year from today`, now.AddDate(1, 0, 0)},
+		{`two years ago`, now.AddDate(-2, 0, 0)},
+		{`2 years ago`, now.AddDate(-2, 0, 0)},
+	}
+
+	for _, c := range cases {
+		t.Run(c.Input, func(t *testing.T) {
+			v, err := Parse(c.Input, now)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assert.Equal(t, c.WantTime, v)
+		})
+	}
+}
+
+func TestParse_goodDays(t *testing.T) {
+	now := time.Date(2022, 9, 29, 2, 48, 33, 123, time.Local)
+	var cases = []struct {
+		Input    string
+		WantTime time.Time
+	}{
 		// years
 		{`last year`, truncateYear(now.AddDate(-1, 0, 0))},
 		{`next year`, truncateYear(now.AddDate(1, 0, 0))},
