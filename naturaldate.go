@@ -53,11 +53,11 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	months := gp.Regex(`months?`)
 	monthsAgo := gp.Seq(number, months, "ago").Map(func(n *gp.Result) {
 		num := n.Child[0].Result.(int)
-		n.Result = truncateDay(ref.AddDate(0, -num, 0))
+		n.Result = ref.AddDate(0, -num, 0)
 	})
 	monthsFromNow := gp.Seq(number, months, gp.Any(gp.Seq("from", "now"), "hence")).Map(func(n *gp.Result) {
 		num := n.Child[0].Result.(int)
-		n.Result = truncateDay(ref.AddDate(0, num, 0))
+		n.Result = ref.AddDate(0, num, 0)
 	})
 	weekday := gp.AnyWithName("weekday", "mon", "tue", "wed", "thu", "fri", "sat", "sun")
 	longMonth := gp.AnyWithName("long month",
