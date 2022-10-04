@@ -82,13 +82,14 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		}
 		n.Result = s
 	})
+	amPM := gp.AnyWithName("AM or PM", "am", "pm")
 	colonSecond := gp.Seq(":", second).Map(func(n *gp.Result) {
 		n.Result = n.Child[1].Result
 	})
-	colonMinute := gp.Seq(":", minute).Map(func(n *gp.Result) {
+	colonMinute := gp.Seq(gp.Maybe(":"), minute).Map(func(n *gp.Result) {
 		n.Result = n.Child[1].Result
 	})
-	hourMinuteSecond := gp.Seq(hour, colonMinute, gp.Maybe(colonSecond)).Map(func(n *gp.Result) {
+	hourMinuteSecond := gp.Seq(hour, colonMinute, gp.Maybe(colonSecond), gp.Maybe(amPM)).Map(func(n *gp.Result) {
 		h := n.Child[0].Result.(int)
 		m := n.Child[1].Result.(int)
 		s := 0
@@ -96,22 +97,39 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		if c2 != nil {
 			s = c2.(int)
 		}
+		if n.Child[3].Token == "pm" {
+			h += 12
+		}
 		n.Result = time.Date(1, 1, 1, h, m, s, 0, ref.Location())
 	})
-	zoneHour := gp.Regex(`[-+][01]\d`).Map(func(n *gp.Result) {
+	zoneHour := gp.Regex(`[-+][01]?\d`).Map(func(n *gp.Result) {
 		h, err := strconv.Atoi(n.Token)
 		if err != nil {
 			panic(fmt.Sprintf("parsing time zone hour: %v", err))
 		}
 		n.Result = h
 	})
-	zoneZ := gp.Bind("z", time.UTC)
-	zoneHourMinute := gp.Seq(zoneHour, gp.Maybe(":"), minute).Map(func(n *gp.Result) {
+	zoneOffset := gp.Seq(zoneHour, gp.Maybe(colonMinute)).Map(func(n *gp.Result) {
 		h := n.Child[0].Result.(int)
-		m := n.Child[2].Result.(int)
+		c1 := n.Child[1].Result
+		m := 0
+		if c1 != nil {
+			m = c1.(int)
+		}
 		n.Result = fixedZoneHM(h, m)
 	})
-	zone := gp.AnyWithName("time zone", zoneHourMinute, zoneZ)
+	zoneUTC := gp.Seq("utc", gp.Maybe(zoneOffset)).Map(func(n *gp.Result) {
+		c1 := n.Child[1].Result
+		z := time.UTC
+		if c1 != nil {
+			z = c1.(*time.Location)
+		}
+		n.Result = z
+	})
+	zoneZ := gp.Bind("z", time.UTC)
+	zone := gp.AnyWithName("time zone", zoneUTC, zoneOffset, zoneZ).Map(func(n *gp.Result) {
+		fmt.Println("bp")
+	})
 	year := gp.Regex(`[12]\d{3}`).Map(func(n *gp.Result) {
 		y, err := strconv.Atoi(n.Token)
 		if err != nil {
