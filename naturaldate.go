@@ -34,6 +34,13 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		}
 		n.Result = t.Month()
 	})
+	monthNum := gp.Regex(`[01]?\d`).Map(func(n *gp.Result) {
+		m, err := strconv.Atoi(n.Token)
+		if err != nil {
+			panic(fmt.Sprintf("parsing month number: %v", err))
+		}
+		n.Result = time.Month(m)
+	})
 	dayOfMonth := gp.Regex(`[0-3]?\d`).Map(func(n *gp.Result) {
 		d, err := strconv.Atoi(n.Token)
 		if err != nil {
@@ -55,7 +62,9 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		}
 		n.Result = m
 	})
-	second := gp.Regex(`[0-5]?\d`).Map(func(n *gp.Result) {
+	// Second can go up to 60 because of leap seconds, for example
+	// 1990-12-31T15:59:60-08:00.
+	second := gp.Regex(`[0-6]?\d`).Map(func(n *gp.Result) {
 		s, err := strconv.Atoi(n.Token)
 		if err != nil {
 			panic(fmt.Sprintf("parsing second: %v", err))
@@ -75,11 +84,13 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		}
 		n.Result = h
 	})
-	zone := gp.Seq(zoneHour, minute).Map(func(n *gp.Result) {
+	zoneZ := gp.Bind("z", time.UTC)
+	zoneHourMinute := gp.Seq(zoneHour, gp.Maybe(":"), minute).Map(func(n *gp.Result) {
 		h := n.Child[0].Result.(int)
-		m := n.Child[1].Result.(int)
+		m := n.Child[2].Result.(int)
 		n.Result = fixedZoneHM(h, m)
 	})
+	zone := gp.AnyWithName("time zone", zoneHourMinute, zoneZ)
 	year := gp.Regex(`[12]\d{3}`).Map(func(n *gp.Result) {
 		y, err := strconv.Atoi(n.Token)
 		if err != nil {
@@ -110,8 +121,16 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		z := n.Child[6].Result.(*time.Location)
 		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, z)
 	})
+	rfc3339 := gp.Seq(year, "-", monthNum, "-", dayOfMonth, "t", hourMinuteSecond, zone).Map(func(n *gp.Result) {
+		y := n.Child[0].Result.(int)
+		m := n.Child[2].Result.(time.Month)
+		d := n.Child[4].Result.(int)
+		t := n.Child[6].Result.(time.Time)
+		z := n.Child[7].Result.(*time.Location)
+		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, z)
+	})
 	p := gp.AnyWithName("datetime",
-		now, lastMonth, ansiC, rubyDate, rfc1123Z)
+		now, lastMonth, ansiC, rubyDate, rfc1123Z, rfc3339)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("running parser: %w", err)
