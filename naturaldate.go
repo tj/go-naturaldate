@@ -29,6 +29,31 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	nextMo := gp.Seq("next", "month").Map(func(n *gp.Result) {
 		n.Result = truncateDay(ref.AddDate(0, 1, 0))
 	})
+	one := gp.Bind("one", 1)
+	a := gp.Bind("a", 1)
+	two := gp.Bind("two", 2)
+	three := gp.Bind("three", 3)
+	four := gp.Bind("four", 4)
+	five := gp.Bind("five", 5)
+	six := gp.Bind("six", 6)
+	seven := gp.Bind("seven", 7)
+	eight := gp.Bind("eight", 8)
+	nine := gp.Bind("nine", 9)
+	ten := gp.Bind("ten", 10)
+	eleven := gp.Bind("eleven", 11)
+	twelve := gp.Bind("twelve", 12)
+	numeral := gp.Regex(`\d+`).Map(func(n *gp.Result) {
+		num, err := strconv.Atoi(n.Token)
+		if err != nil {
+			panic(fmt.Sprintf("parsing numeral: %v", err))
+		}
+		n.Result = num
+	})
+	number := gp.AnyWithName("number", one, a, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, numeral)
+	monthsAgo := gp.Seq(number, gp.Regex(`months?`), "ago").Map(func(n *gp.Result) {
+		num := n.Child[0].Result.(int)
+		n.Result = truncateDay(ref.AddDate(0, -num, 0))
+	})
 	weekday := gp.AnyWithName("weekday", "mon", "tue", "wed", "thu", "fri", "sat", "sun")
 	longMonth := gp.AnyWithName("long month",
 		"january", "february", "march", "april",
@@ -199,7 +224,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	})
 	p := gp.AnyWithName("datetime",
 		now, ansiC, rubyDate, rfc1123Z, rfc3339, dateTime,
-		nextMo, prevMo)
+		monthsAgo, nextMo, prevMo)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("running parser: %w", err)
