@@ -252,7 +252,7 @@ Zone
           if offset < 0 {
               name = fmt.Sprintf("UTC-%d", -offset)
           }
-          tz := time.FixedZone(name, offset)
+          tz := time.FixedZone(name, offset*60*60)
           t := p.t
           p.t = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), tz)
        }
