@@ -30,12 +30,16 @@ Expr
   / RelativeMonthDay AtTime?
   / RelativeMonth
   / RelativeYear
-  / (Weekday COMMA?)? Month DayOfMonth Time Year
-    {
-        fmt.Println("RFCs case")
-    }
   / Date AtTime?
   / Time ON? Date
+  / GoTimeFormat
+
+GoTimeFormat
+  <- (Weekday COMMA?)? Month DayOfMonth Time Year
+    {
+      t := p.t
+      p.t = time.Date(p.year, p.month, p.dayOfMonth, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
+    }
 
 AtTime <- COMMA? AT? Time
 
