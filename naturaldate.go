@@ -98,12 +98,20 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		m := n.Child[1].Result.(time.Month)
 		d := n.Child[2].Result.(int)
 		t := n.Child[3].Result.(time.Time)
-		zone := n.Child[4].Result.(*time.Location)
+		z := n.Child[4].Result.(*time.Location)
 		y := n.Child[5].Result.(int)
-		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, zone)
+		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, z)
+	})
+	rfc1123Z := gp.Seq(weekday, gp.Maybe(","), dayOfMonth, month, year, hourMinuteSecond, zone).Map(func(n *gp.Result) {
+		d := n.Child[2].Result.(int)
+		m := n.Child[3].Result.(time.Month)
+		y := n.Child[4].Result.(int)
+		t := n.Child[5].Result.(time.Time)
+		z := n.Child[6].Result.(*time.Location)
+		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, z)
 	})
 	p := gp.AnyWithName("datetime",
-		now, lastMonth, ansiC, rubyDate)
+		now, lastMonth, ansiC, rubyDate, rfc1123Z)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("running parser: %w", err)
