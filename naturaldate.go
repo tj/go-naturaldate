@@ -52,12 +52,18 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		}
 		n.Result = time.Month(m)
 	})
-	dayOfMonth := gp.Regex(`[0-3]?\d`).Map(func(n *gp.Result) {
+	dayOfMonthNum := gp.Regex(`[0-3]?\d`).Map(func(n *gp.Result) {
 		d, err := strconv.Atoi(n.Token)
 		if err != nil {
 			panic(fmt.Sprintf("parsing day of month: %v", err))
 		}
 		n.Result = d
+	})
+	dayOfMonthEnding := gp.Regex(`(st|nd|rd|th)`).Map(func(n *gp.Result) {
+		fmt.Println("bp")
+	})
+	dayOfMonth := gp.Seq(dayOfMonthNum, gp.Maybe(dayOfMonthEnding)).Map(func(n *gp.Result) {
+		n.Result = n.Child[0].Result
 	})
 	hour := gp.Regex(`[0-2]?\d`).Map(func(n *gp.Result) {
 		h, err := strconv.Atoi(n.Token)
