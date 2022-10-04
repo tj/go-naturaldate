@@ -266,7 +266,7 @@ Clock12Hour
       p.hasTime = true
     }
     (Minutes Seconds?)?
-    AM
+    AM _
   / Number
     {
       year, month, day := p.t.Date()
@@ -274,7 +274,7 @@ Clock12Hour
       p.hasTime = true
     }
     (Minutes Seconds?)?
-    PM
+    PM _
 
 Clock24Hour
   <- Number
