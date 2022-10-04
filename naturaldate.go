@@ -50,9 +50,14 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = num
 	})
 	number := gp.AnyWithName("number", one, a, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, numeral)
-	monthsAgo := gp.Seq(number, gp.Regex(`months?`), "ago").Map(func(n *gp.Result) {
+	months := gp.Regex(`months?`)
+	monthsAgo := gp.Seq(number, months, "ago").Map(func(n *gp.Result) {
 		num := n.Child[0].Result.(int)
 		n.Result = truncateDay(ref.AddDate(0, -num, 0))
+	})
+	monthsFromNow := gp.Seq(number, months, gp.Any(gp.Seq("from", "now"), "hence")).Map(func(n *gp.Result) {
+		num := n.Child[0].Result.(int)
+		n.Result = truncateDay(ref.AddDate(0, num, 0))
 	})
 	weekday := gp.AnyWithName("weekday", "mon", "tue", "wed", "thu", "fri", "sat", "sun")
 	longMonth := gp.AnyWithName("long month",
@@ -73,6 +78,10 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = t.Month()
 	})
 	month := gp.AnyWithName("month", longMonth, shortMonth)
+	lastSpecificMonth := gp.Seq("last", month).Map(func(n *gp.Result) {
+		m := n.Child[1].Result.(time.Month)
+		n.Result = prevMonth(ref, m)
+	})
 	monthNum := gp.Regex(`[01]?\d`).Map(func(n *gp.Result) {
 		m, err := strconv.Atoi(n.Token)
 		if err != nil {
@@ -224,7 +233,8 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	})
 	p := gp.AnyWithName("datetime",
 		now, ansiC, rubyDate, rfc1123Z, rfc3339, dateTime,
-		monthsAgo, nextMo, prevMo)
+		lastSpecificMonth,
+		monthsAgo, monthsFromNow, nextMo, prevMo)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("running parser: %w", err)
@@ -248,9 +258,9 @@ func fixedZone(offsetHours int) *time.Location {
 	return fixedZoneHM(offsetHours, 0)
 }
 
-// prevWeekday returns the previous week day relative to time t.
+// prevWeekdayFrom returns the previous week day relative to time t.
 // TODO: test this with t = some sunday, day = time.Sunday.
-func prevWeekday(t time.Time, day time.Weekday) time.Time {
+func prevWeekdayFrom(t time.Time, day time.Weekday) time.Time {
 	d := t.Weekday() - day
 	if d <= 0 {
 		d += 7
@@ -258,9 +268,9 @@ func prevWeekday(t time.Time, day time.Weekday) time.Time {
 	return t.Add(-time.Hour * 24 * time.Duration(d))
 }
 
-// nextWeekday returns the next week day relative to time t.
+// nextWeekdayFrom returns the next week day relative to time t.
 // TODO: test this with t = some sunday, day = time.Sunday.
-func nextWeekday(t time.Time, day time.Weekday) time.Time {
+func nextWeekdayFrom(t time.Time, day time.Weekday) time.Time {
 	d := day - t.Weekday()
 	if d <= 0 {
 		d += 7

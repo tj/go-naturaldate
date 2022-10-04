@@ -58,9 +58,9 @@ func TestParse_goodTimes(t *testing.T) {
 		{`tomorrow at 10:15am`, dateAtTime(now.AddDate(0, 0, 1), 10, 15, 0)},
 		{"next December 25th at 7:30am UTC-7", timeInLocation(nextMonthDayTime(now, time.December, 25, 7, 30, 0), fixedZone(-7))},
 		{`next December 23rd AT 5:25 PM`, nextMonthDayTime(now, time.December, 23, 12+5, 25, 0)},
-		{`last sunday at 5:30pm`, dateAtTime(prevWeekday(now, time.Sunday), 12+5, 30, 0)},
-		{`next sunday at 22:45`, dateAtTime(nextWeekday(now, time.Sunday), 22, 45, 0)},
-		{`next sunday at 22:45`, dateAtTime(nextWeekday(now, time.Sunday), 22, 45, 0)},
+		{`last sunday at 5:30pm`, dateAtTime(prevWeekdayFrom(now, time.Sunday), 12+5, 30, 0)},
+		{`next sunday at 22:45`, dateAtTime(nextWeekdayFrom(now, time.Sunday), 22, 45, 0)},
+		{`next sunday at 22:45`, dateAtTime(nextWeekdayFrom(now, time.Sunday), 22, 45, 0)},
 		{`November 3rd, 1986 at 4:30pm`, time.Date(1986, 11, 3, 12+4, 30, 0, 0, now.Location())},
 		{"September 17, 2012 at 10:09am UTC", time.Date(2012, 9, 17, 10, 9, 0, 0, time.UTC)},
 		{"September 17, 2012 at 10:09am UTC-8", time.Date(2012, 9, 17, 10, 9, 0, 0, fixedZone(-8))},
@@ -123,6 +123,7 @@ func TestParse_goodDays(t *testing.T) {
 		{`2 months ago`, now.AddDate(0, -2, 0)},
 		{`12 months ago`, now.AddDate(0, -12, 0)},
 		{`a month from now`, now.AddDate(0, 1, 0)},
+		{`one month hence`, now.AddDate(0, 1, 0)},
 		{`1 month from now`, now.AddDate(0, 1, 0)},
 		{`2 months from now`, now.AddDate(0, 2, 0)},
 		{`last january`, prevMonth(now, time.January)},
@@ -147,24 +148,24 @@ func TestParse_goodDays(t *testing.T) {
 		{`tomorrow`, now.AddDate(0, 0, 1)},
 
 		// past weekdays
-		{`last sunday`, prevWeekday(now, time.Sunday)},
-		{`past sunday`, prevWeekday(now, time.Sunday)},
-		{`last monday`, prevWeekday(now, time.Monday)},
-		{`last tuesday`, prevWeekday(now, time.Tuesday)},
-		{`previous tuesday`, prevWeekday(now, time.Tuesday)},
-		{`last wednesday`, prevWeekday(now, time.Wednesday)},
-		{`last thursday`, prevWeekday(now, time.Thursday)},
-		{`last friday`, prevWeekday(now, time.Friday)},
-		{`last saturday`, prevWeekday(now, time.Saturday)},
+		{`last sunday`, prevWeekdayFrom(now, time.Sunday)},
+		{`past sunday`, prevWeekdayFrom(now, time.Sunday)},
+		{`last monday`, prevWeekdayFrom(now, time.Monday)},
+		{`last tuesday`, prevWeekdayFrom(now, time.Tuesday)},
+		{`previous tuesday`, prevWeekdayFrom(now, time.Tuesday)},
+		{`last wednesday`, prevWeekdayFrom(now, time.Wednesday)},
+		{`last thursday`, prevWeekdayFrom(now, time.Thursday)},
+		{`last friday`, prevWeekdayFrom(now, time.Friday)},
+		{`last saturday`, prevWeekdayFrom(now, time.Saturday)},
 
 		// future weekdays
-		{`next tuesday`, nextWeekday(now, time.Tuesday)},
-		{`next wednesday`, nextWeekday(now, time.Wednesday)},
-		{`next thursday`, nextWeekday(now, time.Thursday)},
-		{`next friday`, nextWeekday(now, time.Friday)},
-		{`next saturday`, nextWeekday(now, time.Saturday)},
-		{`next sunday`, nextWeekday(now, time.Sunday)},
-		{`next monday`, nextWeekday(now, time.Monday)},
+		{`next tuesday`, nextWeekdayFrom(now, time.Tuesday)},
+		{`next wednesday`, nextWeekdayFrom(now, time.Wednesday)},
+		{`next thursday`, nextWeekdayFrom(now, time.Thursday)},
+		{`next friday`, nextWeekdayFrom(now, time.Friday)},
+		{`next saturday`, nextWeekdayFrom(now, time.Saturday)},
+		{`next sunday`, nextWeekdayFrom(now, time.Sunday)},
+		{`next monday`, nextWeekdayFrom(now, time.Monday)},
 
 		// months
 		{`last january`, prevMonth(now, time.January)},
@@ -232,7 +233,7 @@ func TestParse_withStuffAtEnd(t *testing.T) {
 	}{
 		{`last year I moved to a new location`, "last year ", truncateYear(now.AddDate(-1, 0, 0))},
 		{`today I'm going out of town`, "today ", truncateDay(now)},
-		{`next Monday is an important meeting`, "next monday ", truncateDay(nextWeekday(now, time.Monday))},
+		{`next Monday is an important meeting`, "next monday ", truncateDay(nextWeekdayFrom(now, time.Monday))},
 	}
 	for _, c := range cases {
 		t.Run(c.Input, func(t *testing.T) {
