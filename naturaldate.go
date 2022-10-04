@@ -23,8 +23,11 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	s = strings.ToLower(s)
 
 	now := gp.Bind("now", ref)
-	lastMonth := gp.Seq("last", "month").Map(func(n *gp.Result) {
+	prevMo := gp.Seq("last", "month").Map(func(n *gp.Result) {
 		n.Result = truncateDay(ref.AddDate(0, -1, 0))
+	})
+	nextMo := gp.Seq("next", "month").Map(func(n *gp.Result) {
+		n.Result = truncateDay(ref.AddDate(0, 1, 0))
 	})
 	weekday := gp.AnyWithName("weekday", "mon", "tue", "wed", "thu", "fri", "sat", "sun")
 	longMonth := gp.AnyWithName("long month",
@@ -195,7 +198,8 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = time.Date(d.Year(), d.Month(), d.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
 	})
 	p := gp.AnyWithName("datetime",
-		now, lastMonth, ansiC, rubyDate, rfc1123Z, rfc3339, dateTime)
+		now, ansiC, rubyDate, rfc1123Z, rfc3339, dateTime,
+		nextMo, prevMo)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("running parser: %w", err)
