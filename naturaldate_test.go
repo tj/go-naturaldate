@@ -212,6 +212,22 @@ func TestParse_goodTimes(t *testing.T) {
 		{"September 17, 2012 10:11", time.Date(2012, 9, 17, 10, 11, 0, 0, now.Location())},
 		{"September 17 2012 10:11", time.Date(2012, 9, 17, 10, 11, 0, 0, now.Location())},
 		{"September 17 2012 at 10:11", time.Date(2012, 9, 17, 10, 11, 0, 0, now.Location())},
+
+		// formats from the Go time package:
+		// ANSIC
+		{"Mon Jan _2 15:04:05 2006", time.Date(2006, 1, 2, 15, 4, 5, 0, now.Location())},
+		// UnixDate
+		{"Mon Jan _2 15:04:05 MST 2006", time.Date(2006, 1, 2, 15, 4, 5, 0, location("MST"))},
+		// RubyDate
+		{"Mon Jan 02 15:04:05 -0700 2006", time.Date(2006, 1, 2, 15, 4, 5, 0, fixedZone(-7))},
+		// RFC1123
+		{"Mon, 02 Jan 2006 15:04:05 MST", time.Date(2006, 1, 2, 15, 4, 5, 0, location("MST"))},
+		// RFC1123Z
+		{"Mon, 02 Jan 2006 15:04:05 -0700", time.Date(2006, 1, 2, 15, 4, 5, 0, fixedZone(-7))},
+		// RFC3339
+		{"2006-01-02T15:04:05Z07:00", time.Date(2006, 1, 2, 15, 4, 5, 0, fixedZone(7))},
+		// RFC3339Nano
+		{"2006-01-02T15:04:05.999999999Z07:00", time.Date(2006, 1, 2, 15, 4, 5, 999999999, fixedZone(7))},
 	}
 
 	for _, c := range cases {
