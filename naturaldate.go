@@ -29,6 +29,15 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	nextMo := gp.Seq("next", "month").Map(func(n *gp.Result) {
 		n.Result = truncateMonth(ref.AddDate(0, 1, 0))
 	})
+
+	lastWeek := gp.Seq("last", "week").Map(func(n *gp.Result) {
+		n.Result = truncateWeek(ref.AddDate(0, 0, -7))
+	})
+
+	nextWeek := gp.Seq("next", "week").Map(func(n *gp.Result) {
+		n.Result = truncateWeek(ref.AddDate(0, 0, 7))
+	})
+
 	one := gp.Bind("one", 1)
 	a := gp.Bind("a", 1)
 	an := gp.Bind("an", 1)
@@ -350,7 +359,8 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		xYearsAgo, xYearsFromToday,
 		lastSpecificMonth, nextSpecificMonth,
 		lastYear, nextYear,
-		nextMo, prevMo)
+		nextMo, prevMo,
+		lastWeek, nextWeek)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("running parser: %w", err)
@@ -439,6 +449,14 @@ func prevMonth(t time.Time, month time.Month) time.Time {
 func truncateDay(t time.Time) time.Time {
 	y, m, d := t.Date()
 	return time.Date(y, m, d, 0, 0, 0, 0, t.Location())
+}
+
+// truncateWeek returns a date truncated to the week.
+func truncateWeek(t time.Time) time.Time {
+	for t.Weekday() != time.Sunday {
+		t = t.AddDate(0, 0, -1)
+	}
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 }
 
 // truncateMonth returns a date truncated to the month.

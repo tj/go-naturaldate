@@ -91,7 +91,6 @@ func TestParse_goodTimes(t *testing.T) {
 		// weeks
 		{`1 week ago`, now.Add(-7 * 24 * time.Hour)},
 		{`2 weeks ago`, now.Add(-2 * 7 * 24 * time.Hour)},
-		{`next week`, now.Add(7 * 24 * time.Hour)},
 		{`a week from now`, now.Add(7 * 24 * time.Hour)},
 		{`a week from today`, now.Add(7 * 24 * time.Hour)},
 
@@ -144,6 +143,10 @@ func TestParse_goodDays(t *testing.T) {
 
 		// tomorrow
 		{`tomorrow`, now.AddDate(0, 0, 1)},
+
+		// weeks
+		{`last week`, truncateWeek(now.AddDate(0, 0, -7))},
+		{`next week`, truncateWeek(now.AddDate(0, 0, 7))},
 
 		// past weekdays
 		{`last sunday`, prevWeekdayFrom(now, time.Sunday)},
