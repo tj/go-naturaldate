@@ -74,7 +74,33 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		num := n.Child[0].Result.(int)
 		n.Result = ref.AddDate(0, num, 0)
 	})
-	weekday := gp.AnyWithName("weekday", "mon", "tue", "wed", "thu", "fri", "sat", "sun")
+
+	shortWeekday := gp.AnyWithName("short weekday", "mon", "tue", "wed", "thu", "fri", "sat", "sun")
+	longWeekday := gp.AnyWithName("long weekday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
+	weekday := gp.AnyWithName("weekday", shortWeekday, longWeekday).Map(func(n *gp.Result) {
+		m := map[string]time.Weekday{
+			"sun": time.Sunday,
+			"mon": time.Monday,
+			"tue": time.Tuesday,
+			"wed": time.Wednesday,
+			"thu": time.Thursday,
+			"fri": time.Friday,
+			"sat": time.Saturday,
+		}
+		day := m[n.Token]
+		n.Result = day
+	})
+
+	lastWeekday := gp.Seq("last", weekday).Map(func(n *gp.Result) {
+		day := n.Child[1].Result.(time.Weekday)
+		n.Result = prevWeekdayFrom(ref, day)
+	})
+
+	nextWeekday := gp.Seq("next", weekday).Map(func(n *gp.Result) {
+		day := n.Child[1].Result.(time.Weekday)
+		n.Result = nextWeekdayFrom(ref, day)
+	})
+
 	longMonth := gp.AnyWithName("long month",
 		"january", "february", "march", "april",
 		/* may is already short */ "june", "july", "august", "september",
@@ -85,6 +111,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		}
 		n.Result = t.Month()
 	})
+
 	shortMonth := gp.AnyWithName("month", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec").Map(func(n *gp.Result) {
 		t, err := time.Parse("Jan", n.Token)
 		if err != nil {
@@ -92,6 +119,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		}
 		n.Result = t.Month()
 	})
+
 	month := gp.AnyWithName("month", longMonth, shortMonth)
 	lastSpecificMonth := gp.Seq("last", month).Map(func(n *gp.Result) {
 		m := n.Child[1].Result.(time.Month)
@@ -364,6 +392,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		lastSpecificMonth, nextSpecificMonth,
 		lastYear, nextYear,
 		nextMo, prevMo,
+		lastWeekday, nextWeekday,
 		lastWeek, nextWeek)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
 	_, parsedJustAPart := err.(gp.UnparsedInputError)
@@ -405,7 +434,7 @@ func prevWeekdayFrom(t time.Time, day time.Weekday) time.Time {
 	if d <= 0 {
 		d += 7
 	}
-	return t.Add(-time.Hour * 24 * time.Duration(d))
+	return truncateDay(t.AddDate(0, 0, -int(d)))
 }
 
 // nextWeekdayFrom returns the next week day relative to time t.
@@ -415,7 +444,7 @@ func nextWeekdayFrom(t time.Time, day time.Weekday) time.Time {
 	if d <= 0 {
 		d += 7
 	}
-	return t.Add(time.Hour * 24 * time.Duration(d))
+	return truncateDay(t.AddDate(0, 0, int(d)))
 }
 
 // nextMonthDayTime returns the next month relative to time t, with given day of month and time of day.
