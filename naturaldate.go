@@ -366,7 +366,8 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		nextMo, prevMo,
 		lastWeek, nextWeek)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
-	if err != nil {
+	_, parsedJustAPart := err.(gp.UnparsedInputError)
+	if err != nil && !parsedJustAPart {
 		return time.Time{}, fmt.Errorf("running parser: %w", err)
 	}
 	t := result.(time.Time)
