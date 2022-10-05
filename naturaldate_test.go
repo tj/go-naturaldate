@@ -44,6 +44,7 @@ func TestParse_goodTimes(t *testing.T) {
 
 		// dates with times
 		{`3 days ago at 11:25am`, dateAtTime(now.Add(-3*24*time.Hour), 11, 25, 0)},
+		{`3 days from now at 14:26`, dateAtTime(now.Add(3*24*time.Hour), 14, 26, 0)},
 		{`2 weeks ago at 8am`, dateAtTime(now.Add(-2*7*24*time.Hour), 8, 0, 0)},
 		{`today at 10am`, dateAtTime(now, 10, 0, 0)},
 		{`yesterday 10am`, dateAtTime(now.AddDate(0, 0, -1), 10, 0, 0)},
