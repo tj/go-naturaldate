@@ -31,6 +31,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	})
 	one := gp.Bind("one", 1)
 	a := gp.Bind("a", 1)
+	an := gp.Bind("an", 1)
 	two := gp.Bind("two", 2)
 	three := gp.Bind("three", 3)
 	four := gp.Bind("four", 4)
@@ -49,7 +50,9 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		}
 		n.Result = num
 	})
-	number := gp.AnyWithName("number", one, a, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, numeral)
+	number := gp.AnyWithName("number", one, an, a, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, numeral).Map(func(n *gp.Result) {
+		fmt.Println("number bp")
+	})
 	months := gp.Regex(`months?`)
 	monthsAgo := gp.Seq(number, months, "ago").Map(func(n *gp.Result) {
 		num := n.Child[0].Result.(int)
@@ -268,9 +271,19 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		m := n.Child[0].Result.(int)
 		n.Result = ref.Add(time.Duration(m) * time.Minute)
 	})
+	hoursLabel := gp.Regex(`hours?`)
+	xHoursAgo := gp.Seq(number, hoursLabel, "ago").Map(func(n *gp.Result) {
+		h := n.Child[0].Result.(int)
+		n.Result = ref.Add(-time.Duration(h) * time.Hour)
+	})
+	xHoursFromNow := gp.Seq(number, hoursLabel, gp.Any("hence", gp.Seq("from", "now"))).Map(func(n *gp.Result) {
+		h := n.Child[0].Result.(int)
+		n.Result = ref.Add(time.Duration(h) * time.Hour)
+	})
 	p := gp.AnyWithName("datetime",
 		now, ansiC, rubyDate, rfc1123Z, rfc3339, dateTime,
 		xMinutesAgo, xMinutesFromNow,
+		xHoursAgo, xHoursFromNow,
 		xDaysAgo, xDaysFromNow,
 		monthsAgo, monthsFromNow,
 		xYearsAgo, xYearsFromToday,

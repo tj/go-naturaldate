@@ -27,9 +27,8 @@ func TestParse_goodTimes(t *testing.T) {
 		// minutes
 		{`a minute from now`, now.Add(time.Minute)},
 		{`a minute ago`, now.Add(-time.Minute)},
-		{`next minute`, now.Add(time.Minute)},
-		{`last minute`, now.Add(-time.Minute)},
 		{`1 minute ago`, now.Add(-time.Minute)},
+
 		{`5 minutes ago`, now.Add(-5 * time.Minute)},
 		{`five minutes ago`, now.Add(-5 * time.Minute)},
 		{`   5    minutes  ago   `, now.Add(-5 * time.Minute)},
