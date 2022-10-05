@@ -338,10 +338,10 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	})
 	tomorrow := gp.Any(timeTomorrow, tomorrowTime)
 
-	dateTime := gp.Seq(date, gp.Maybe(","), atTimeWithMaybeZone).Map(func(n *gp.Result) {
+	dateTime := gp.Seq(date, gp.Maybe(","), gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
 		d := n.Child[0].Result.(time.Time)
-		t := n.Child[2].Result.(time.Time)
-		n.Result = time.Date(d.Year(), d.Month(), d.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
+		t := setTimeMaybe(d, n.Child[2].Result)
+		n.Result = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
 	})
 	lastYear := gp.Seq("last", "year").Map(func(n *gp.Result) {
 		n.Result = truncateYear(ref.AddDate(-1, 0, 0))
