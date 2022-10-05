@@ -294,7 +294,10 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		m := n.Child[0].Result.(int)
 		n.Result = ref.Add(-time.Duration(m) * time.Minute)
 	})
-	xMinutesFromNow := gp.Seq(number, minutesLabel, gp.Any("hence", gp.Seq("from", "now"))).Map(func(n *gp.Result) {
+
+	fromNow := gp.Any("hence", gp.Seq("from", "now"))
+
+	xMinutesFromNow := gp.Seq(number, minutesLabel, fromNow).Map(func(n *gp.Result) {
 		m := n.Child[0].Result.(int)
 		n.Result = ref.Add(time.Duration(m) * time.Minute)
 	})
@@ -303,7 +306,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		h := n.Child[0].Result.(int)
 		n.Result = ref.Add(-time.Duration(h) * time.Hour)
 	})
-	xHoursFromNow := gp.Seq(number, hoursLabel, gp.Any("hence", gp.Seq("from", "now"))).Map(func(n *gp.Result) {
+	xHoursFromNow := gp.Seq(number, hoursLabel, fromNow).Map(func(n *gp.Result) {
 		h := n.Child[0].Result.(int)
 		n.Result = ref.Add(time.Duration(h) * time.Hour)
 	})
