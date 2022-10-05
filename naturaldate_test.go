@@ -10,6 +10,8 @@ import (
 	"github.com/tj/assert"
 )
 
+var now = time.Date(2022, 9, 29, 2, 48, 33, 123, time.Local)
+
 func dateAtTime(dateFrom time.Time, hour int, min int, sec int) time.Time {
 	t := dateFrom
 	return time.Date(t.Year(), t.Month(), t.Day(), hour, min, sec, 0, t.Location())
@@ -17,7 +19,6 @@ func dateAtTime(dateFrom time.Time, hour int, min int, sec int) time.Time {
 
 // Test parsing on cases that are expected to parse successfully.
 func TestParse_goodTimes(t *testing.T) {
-	now := time.Date(2022, 9, 29, 2, 48, 33, 123, time.Local)
 	var cases = []struct {
 		Input    string
 		WantTime time.Time
@@ -127,7 +128,6 @@ func TestParse_goodTimes(t *testing.T) {
 }
 
 func TestParse_goodDays(t *testing.T) {
-	now := time.Date(2022, 9, 29, 2, 48, 33, 123, time.Local)
 	var cases = []struct {
 		Input    string
 		WantTime time.Time
