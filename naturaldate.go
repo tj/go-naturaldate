@@ -117,7 +117,11 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = t.Month()
 	})
 
-	month := gp.AnyWithName("month", longMonth, shortMonth)
+	shortMonthMaybeDot := gp.Seq(shortMonth, gp.Maybe(".")).Map(func(n *gp.Result) {
+		n.Result = n.Child[0].Result
+	})
+
+	month := gp.AnyWithName("month", longMonth, shortMonthMaybeDot)
 	lastSpecificMonth := gp.Seq("last", month).Map(func(n *gp.Result) {
 		m := n.Child[1].Result.(time.Month)
 		n.Result = prevMonth(ref, m)
