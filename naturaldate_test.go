@@ -190,7 +190,7 @@ func TestParse_goodDays(t *testing.T) {
 		{"7 oct, 1970", time.Date(1970, 10, 7, 0, 0, 0, 0, now.Location())},
 		{"03 February 2013", time.Date(2013, 2, 3, 0, 0, 0, 0, now.Location())},
 		{"2 July 2013", time.Date(2013, 7, 2, 0, 0, 0, 0, now.Location())},
-		// yyyy/mm/dd
+		// yyyy/mm/dd, dd/mm/yyyy etc.
 		{"2014/3/31", time.Date(2014, 3, 31, 0, 0, 0, 0, now.Location())},
 		{"2014/3/31 UTC", time.Date(2014, 3, 31, 0, 0, 0, 0, location("UTC"))},
 		{"2014/3/31 UTC+1", time.Date(2014, 3, 31, 0, 0, 0, 0, fixedZone(1))},
