@@ -38,8 +38,6 @@ func TestParse_goodTimes(t *testing.T) {
 		// hours
 		{`an hour from now`, now.Add(time.Hour)},
 		{`an hour ago`, now.Add(-time.Hour)},
-		{`last hour`, now.Add(-time.Hour)},
-		{`next hour`, now.Add(time.Hour)},
 		{`1 hour ago`, now.Add(-time.Hour)},
 		{`6 hours ago`, now.Add(-6 * time.Hour)},
 		{`1 hour from now`, now.Add(time.Hour)},
