@@ -98,8 +98,6 @@ func TestParse_goodTimes(t *testing.T) {
 		// months
 		{`a month ago`, now.AddDate(0, -1, 0)},
 		{`1 month ago`, now.AddDate(0, -1, 0)},
-		{`last month`, now.AddDate(0, -1, 0)},
-		{`next month`, now.AddDate(0, 1, 0)},
 		{`2 months ago`, now.AddDate(0, -2, 0)},
 		{`12 months ago`, now.AddDate(0, -12, 0)},
 		{`a month from now`, now.AddDate(0, 1, 0)},
@@ -170,6 +168,8 @@ func TestParse_goodDays(t *testing.T) {
 		// months
 		{`last january`, prevMonth(now, time.January)},
 		{`next january`, nextMonth(now, time.January)},
+		{`last month`, truncateMonth(now.AddDate(0, -1, 0))},
+		{`next month`, truncateMonth(now.AddDate(0, 1, 0))},
 
 		// absolute dates
 		{"january 2017", time.Date(2017, 1, 1, 0, 0, 0, 0, now.Location())},
