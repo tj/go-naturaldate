@@ -151,10 +151,8 @@ func TestParse_goodDays(t *testing.T) {
 
 		// past weekdays
 		{`last sunday`, prevWeekdayFrom(now, time.Sunday)},
-		{`past sunday`, prevWeekdayFrom(now, time.Sunday)},
 		{`last monday`, prevWeekdayFrom(now, time.Monday)},
 		{`last tuesday`, prevWeekdayFrom(now, time.Tuesday)},
-		{`previous tuesday`, prevWeekdayFrom(now, time.Tuesday)},
 		{`last wednesday`, prevWeekdayFrom(now, time.Wednesday)},
 		{`last thursday`, prevWeekdayFrom(now, time.Thursday)},
 		{`last friday`, prevWeekdayFrom(now, time.Friday)},
