@@ -344,8 +344,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 
 	dateTime := gp.Seq(date, gp.Maybe(","), gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
 		d := n.Child[0].Result.(time.Time)
-		t := setTimeMaybe(d, n.Child[2].Result)
-		n.Result = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
+		n.Result = setTimeMaybe(d, n.Child[2].Result)
 	})
 	lastYear := gp.Seq("last", "year").Map(func(n *gp.Result) {
 		n.Result = truncateYear(ref.AddDate(-1, 0, 0))
