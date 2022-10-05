@@ -23,6 +23,9 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	s = strings.ToLower(s)
 
 	now := gp.Bind("now", ref)
+	today := gp.Bind("today", truncateDay(ref))
+	yesterday := gp.Bind("yesterday", truncateDay(ref.AddDate(0, 0, -1)))
+	tomorrow := gp.Bind("tomorrow", truncateDay(ref.AddDate(0, 0, 1)))
 	prevMo := gp.Seq("last", "month").Map(func(n *gp.Result) {
 		n.Result = truncateMonth(ref.AddDate(0, -1, 0))
 	})
@@ -350,7 +353,8 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = ref.Add(time.Duration(h) * time.Hour)
 	})
 	p := gp.AnyWithName("datetime",
-		now, ansiC, rubyDate, rfc1123Z, rfc3339, dateTime,
+		now, today, yesterday, tomorrow,
+		ansiC, rubyDate, rfc1123Z, rfc3339, dateTime,
 		xMinutesAgo, xMinutesFromNow,
 		xHoursAgo, xHoursFromNow,
 		xDaysAgo, xDaysFromNow,
