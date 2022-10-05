@@ -229,28 +229,6 @@ func timeInLocation(t time.Time, l *time.Location) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), l)
 }
 
-func TestParse_withStuffAtEnd(t *testing.T) {
-	now := time.Date(2022, 9, 29, 2, 48, 33, 123, time.Local)
-	var cases = []struct {
-		Input     string
-		WantMatch string
-		WantTime  time.Time
-	}{
-		{`last year I moved to a new location`, "last year ", truncateYear(now.AddDate(-1, 0, 0))},
-		{`today I'm going out of town`, "today ", truncateDay(now)},
-		{`next Monday is an important meeting`, "next monday ", truncateDay(nextWeekdayFrom(now, time.Monday))},
-	}
-	for _, c := range cases {
-		t.Run(c.Input, func(t *testing.T) {
-			v, err := Parse(c.Input, now)
-			if err != nil {
-				t.Fatal(err)
-			}
-			assert.Equal(t, c.WantTime, v)
-		})
-	}
-}
-
 // Benchmark parsing.
 func BenchmarkParse(b *testing.B) {
 	b.SetBytes(1)
