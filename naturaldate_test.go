@@ -439,48 +439,6 @@ func TestParse_bad(t *testing.T) {
 		// "next 2 months" is a date range, not a time or a date.
 		{`next 2 months`},
 
-		// Ambiguous weekday inputs:
-		// These are ambiguous because they don't tell whether it's the
-		// previous, next or, in some cases, current instance of the weekday.
-		{`sunday`},
-		{`monday`},
-		{`tuesday`},
-		{`wednesday`},
-		{`thursday`},
-		{`friday`},
-		{`saturday`},
-
-		// Ambiguous month inputs:
-		// These are ambiguous because they don't include the year.
-		{`january`},
-		{`february`},
-		{`march`},
-		{`april`},
-		{`may`},
-		{`june`},
-		{`july`},
-		{`august`},
-		{`september`},
-		{`october`},
-		{`november`},
-
-		// Ambiguous ordinal dates:
-		// These are ambiguous because they don't include the year.
-		{`november 15th`},
-		{`december 1st`},
-		{`december 2nd`},
-		{`december 3rd`},
-		{`december 4th`},
-		{`december 15th`},
-		{`december 23rd`},
-		{`december 23rd 5pm`},
-		{`december 23rd at 5pm`},
-		{`december 23rd at 5:25pm`},
-		{`December 23rd AT 5:25 PM`},
-		{`December 25th at 7am`},
-		{`7am on December 25th`},
-		{`25th of December at 7am`},
-
 		// Ambiguous 12-hour times:
 		// These are ambiguous because they don't include the date.
 		{`10am`},
