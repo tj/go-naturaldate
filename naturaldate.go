@@ -84,7 +84,8 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 			"fri": time.Friday,
 			"sat": time.Saturday,
 		}
-		day := m[n.Token]
+		shortName := n.Token[:3]
+		day := m[shortName]
 		n.Result = day
 	})
 
