@@ -224,7 +224,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 
 	hourMinuteSecond := gp.AnyWithName("h:m:s", hour12MinuteSecond, hour24MinuteSecond)
 
-	zoneHour := gp.Regex(`[-+][01]?\d\b`).Map(func(n *gp.Result) {
+	zoneHour := gp.Regex(`[-+][01]?\d`).Map(func(n *gp.Result) {
 		h, err := strconv.Atoi(n.Token)
 		if err != nil {
 			panic(fmt.Sprintf("parsing time zone hour: %v", err))
