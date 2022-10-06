@@ -74,7 +74,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 
 	shortWeekday := gp.AnyWithName("short weekday", "mon", "tue", "wed", "thu", "fri", "sat", "sun")
 	longWeekday := gp.AnyWithName("long weekday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
-	weekday := gp.AnyWithName("weekday", shortWeekday, longWeekday).Map(func(n *gp.Result) {
+	weekday := gp.AnyWithName("weekday", longWeekday, shortWeekday).Map(func(n *gp.Result) {
 		m := map[string]time.Weekday{
 			"sun": time.Sunday,
 			"mon": time.Monday,
