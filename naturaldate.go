@@ -290,13 +290,13 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		z := n.Child[7].Result.(*time.Location)
 		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, z)
 	})
-	rfc3339 := gp.Seq(year, "-", monthNum, "-", dayOfMonthNum, "t", gp.Cut(), hourMinuteSecond, zone).Map(func(n *gp.Result) {
-		y := n.Child[0].Result.(int)
-		m := n.Child[2].Result.(time.Month)
-		d := n.Child[4].Result.(int)
-		t := n.Child[7].Result.(time.Time)
-		z := n.Child[8].Result.(*time.Location)
-		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, z)
+
+	rfc3339 := gp.Regex(`[12]\d{3}-[01]\d-[0-3]\dt[0-2]\d:[0-5]\d:[0-6]\d(z|[-+]\d:\d\d)`).Map(func(n *gp.Result) {
+		t, err := time.Parse(time.RFC3339, strings.ToUpper(n.Token))
+		if err != nil {
+			panic(fmt.Sprintf("parsing time in RFC3339 format: %v", err))
+		}
+		n.Result = t
 	})
 
 	dmyDate := gp.Seq(dayOfMonth, gp.Maybe("of"), month, gp.Maybe(","), year).Map(func(n *gp.Result) {
