@@ -11,12 +11,6 @@ import (
 	gp "github.com/ijt/goparsify"
 )
 
-// day duration.
-var day = time.Hour * 24
-
-// week duration.
-var week = time.Hour * 24 * 7
-
 type direction int
 
 const (
