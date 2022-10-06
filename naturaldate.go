@@ -90,16 +90,6 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = day
 	})
 
-	lastWeekday := gp.Seq("last", weekday).Map(func(n *gp.Result) {
-		day := n.Child[1].Result.(time.Weekday)
-		n.Result = prevWeekdayFrom(ref, day)
-	})
-
-	nextWeekday := gp.Seq("next", weekday).Map(func(n *gp.Result) {
-		day := n.Child[1].Result.(time.Weekday)
-		n.Result = nextWeekdayFrom(ref, day)
-	})
-
 	longMonth := gp.AnyWithName("long month",
 		"january", "february", "march", "april",
 		/* may is already short */ "june", "july", "august", "september",
@@ -330,6 +320,18 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 			z = c2.(*time.Location)
 		}
 		n.Result = time.Date(1, 1, 1, t.Hour(), t.Minute(), t.Second(), 0, z)
+	})
+
+	lastWeekday := gp.Seq("last", weekday, gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
+		day := n.Child[1].Result.(time.Weekday)
+		d := prevWeekdayFrom(ref, day)
+		n.Result = setTimeMaybe(d, n.Child[2].Result)
+	})
+
+	nextWeekday := gp.Seq("next", weekday, gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
+		day := n.Child[1].Result.(time.Weekday)
+		d := nextWeekdayFrom(ref, day)
+		n.Result = setTimeMaybe(d, n.Child[2].Result)
 	})
 
 	lastSpecificMonthDay := gp.Seq("last", month, dayOfMonth, gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
