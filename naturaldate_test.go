@@ -2,9 +2,7 @@ package naturaldate
 
 import (
 	"fmt"
-	gp "github.com/ijt/goparsify"
 	"log"
-	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -21,8 +19,6 @@ func dateAtTime(dateFrom time.Time, hour int, min int, sec int) time.Time {
 
 // Test parsing on cases that are expected to parse successfully.
 func TestParse_goodTimes(t *testing.T) {
-	gp.EnableLogging(os.Stdout)
-
 	var cases = []struct {
 		Input    string
 		WantTime time.Time

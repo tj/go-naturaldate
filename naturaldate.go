@@ -3,6 +3,7 @@ package naturaldate
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -18,6 +19,8 @@ var week = time.Hour * 24 * 7
 
 // Parse query string.
 func Parse(s string, ref time.Time) (time.Time, error) {
+	gp.EnableLogging(os.Stdout)
+
 	s = strings.ToLower(s)
 
 	now := gp.Bind("now", ref)
@@ -279,15 +282,15 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		m := n.Child[3].Result.(time.Month)
 		y := n.Child[4].Result.(int)
 		t := n.Child[5].Result.(time.Time)
-		z := n.Child[6].Result.(*time.Location)
+		z := n.Child[7].Result.(*time.Location)
 		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, z)
 	})
 	rfc3339 := gp.Seq(year, "-", monthNum, "-", dayOfMonthNum, "t", gp.Cut(), hourMinuteSecond, zone).Map(func(n *gp.Result) {
 		y := n.Child[0].Result.(int)
 		m := n.Child[2].Result.(time.Month)
 		d := n.Child[4].Result.(int)
-		t := n.Child[6].Result.(time.Time)
-		z := n.Child[7].Result.(*time.Location)
+		t := n.Child[7].Result.(time.Time)
+		z := n.Child[8].Result.(*time.Location)
 		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, z)
 	})
 	date := gp.Seq(month, gp.Maybe(dayOfMonth), gp.Maybe(","), year).Map(func(n *gp.Result) {
@@ -313,7 +316,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 
 	todayTime := gp.Seq("today", gp.Cut(), gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
 		d := truncateDay(ref)
-		n.Result = setTimeMaybe(d, n.Child[1].Result)
+		n.Result = setTimeMaybe(d, n.Child[2].Result)
 	})
 	timeToday := gp.Seq(atTimeWithMaybeZone, "today").Map(func(n *gp.Result) {
 		d := truncateDay(ref)
@@ -323,7 +326,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 
 	yesterdayTime := gp.Seq("yesterday", gp.Cut(), gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
 		d := truncateDay(ref.AddDate(0, 0, -1))
-		n.Result = setTimeMaybe(d, n.Child[1].Result)
+		n.Result = setTimeMaybe(d, n.Child[2].Result)
 	})
 	timeYesterday := gp.Seq(atTimeWithMaybeZone, "yesterday").Map(func(n *gp.Result) {
 		d := truncateDay(ref.AddDate(0, 0, -1))
@@ -367,12 +370,12 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	xDaysAgo := gp.Seq(number, daysLabel, "ago", gp.Cut(), gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
 		delta := n.Child[0].Result.(int)
 		d := ref.AddDate(0, 0, -delta)
-		n.Result = setTimeMaybe(d, n.Child[3].Result)
+		n.Result = setTimeMaybe(d, n.Child[4].Result)
 	})
 	xDaysFromNow := gp.Seq(number, daysLabel, fromNowOrToday, gp.Cut(), gp.Maybe(atTimeWithMaybeZone), gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
 		delta := n.Child[0].Result.(int)
 		d := ref.AddDate(0, 0, delta)
-		n.Result = setTimeMaybe(d, n.Child[3].Result)
+		n.Result = setTimeMaybe(d, n.Child[4].Result)
 	})
 
 	weeksLabel := gp.Regex(`weeks?`)
@@ -380,13 +383,13 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	xWeeksAgo := gp.Seq(number, weeksLabel, "ago", gp.Cut(), gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
 		delta := n.Child[0].Result.(int)
 		d := ref.AddDate(0, 0, -7*delta)
-		n.Result = setTimeMaybe(d, n.Child[3].Result)
+		n.Result = setTimeMaybe(d, n.Child[4].Result)
 	})
 
 	xWeeksFromNow := gp.Seq(number, weeksLabel, fromNowOrToday, gp.Cut(), gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
 		delta := n.Child[0].Result.(int)
 		d := ref.AddDate(0, 0, 7*delta)
-		n.Result = setTimeMaybe(d, n.Child[3].Result)
+		n.Result = setTimeMaybe(d, n.Child[4].Result)
 	})
 
 	minutesLabel := gp.Regex(`minutes?`)
