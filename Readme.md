@@ -54,4 +54,5 @@ Here are some examples of the types of expressions currently supported:
 - 31-3-2014 UTC-8
 - 31/3/2014
 - 31-3-2014
+- January
 - See the [tests](./naturaldate_test.go) for more examples

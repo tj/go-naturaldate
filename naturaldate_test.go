@@ -247,6 +247,7 @@ func TestParse_futurePast(t *testing.T) {
 		{"october", time.October},
 		{"november", time.November},
 		{"december", time.December},
+		{"December", time.December},
 	}
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {

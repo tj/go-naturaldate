@@ -593,6 +593,20 @@ func Parser(ref time.Time, options ...func(o *opts)) gp.Parser {
 		n.Result = t.AddDate(delta, 0, 0)
 	})
 
+	justMonth := month.Map(func(n *gp.Result) {
+		var d time.Time
+		m := n.Result.(time.Month)
+		switch o.defaultDirection {
+		case future:
+			d = nextMonth(ref, m)
+		case past:
+			d = prevMonth(ref, m)
+		default:
+			panic(fmt.Sprintf("invalid default direction: %q", o.defaultDirection))
+		}
+		n.Result = d
+	})
+
 	return gp.AnyWithName("natural date",
 		now, today, yesterday, tomorrow,
 		ansiC, rubyDate, rfc1123Z, rfc3339,
@@ -610,7 +624,7 @@ func Parser(ref time.Time, options ...func(o *opts)) gp.Parser {
 		nextMo, prevMo,
 		lastWeekday, nextWeekday,
 		lastWeek, nextWeek,
-		colorMonth)
+		colorMonth, justMonth)
 }
 
 func setTimeMaybe(datePart time.Time, timePart interface{}) time.Time {
