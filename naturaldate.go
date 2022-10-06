@@ -205,9 +205,14 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 
 	hour12MinuteSecond := gp.Seq(hour12, gp.Maybe(colonMinuteColonSecond), amPM).Map(func(n *gp.Result) {
 		h := n.Child[0].Result.(int)
-		ms := n.Child[1].Result.(time.Time)
-		m := ms.Minute()
-		s := ms.Second()
+		c1 := n.Child[1].Result
+		m := 0
+		s := 0
+		if c1 != nil {
+			ms := n.Child[1].Result.(time.Time)
+			m = ms.Minute()
+			s = ms.Second()
+		}
 		if n.Child[2].Token == "pm" {
 			h += 12
 		}
@@ -348,6 +353,13 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		d := n.Child[0].Result.(time.Time)
 		n.Result = setTimeMaybe(d, n.Child[2].Result)
 	})
+
+	dateZone := gp.Seq(date, zone).Map(func(n *gp.Result) {
+		d := n.Child[0].Result.(time.Time)
+		z := n.Child[1].Result.(*time.Location)
+		n.Result = time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, z)
+	})
+
 	lastYear := gp.Seq("last", "year").Map(func(n *gp.Result) {
 		n.Result = truncateYear(ref.AddDate(-1, 0, 0))
 	})
@@ -415,7 +427,8 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	})
 	p := gp.AnyWithName("natural date",
 		now, today, yesterday, tomorrow,
-		ansiC, rubyDate, rfc1123Z, rfc3339, dateTime,
+		ansiC, rubyDate, rfc1123Z, rfc3339,
+		dateZone, dateTime,
 		xMinutesAgo, xMinutesFromNow,
 		xHoursAgo, xHoursFromNow,
 		xDaysAgo, xDaysFromNow,
