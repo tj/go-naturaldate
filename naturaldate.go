@@ -153,7 +153,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = n.Child[0].Result
 	})
 
-	hour12 := gp.Regex(`[0-1]?\d\b`).Map(func(n *gp.Result) {
+	hour12 := gp.Regex(`[0-1]?\d`).Map(func(n *gp.Result) {
 		h, err := strconv.Atoi(n.Token)
 		if err != nil {
 			panic(fmt.Sprintf("parsing hour (12h clock): %v", err))
