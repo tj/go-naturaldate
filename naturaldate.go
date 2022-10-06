@@ -608,6 +608,20 @@ func Parser(ref time.Time, options ...func(o *opts)) gp.Parser {
 		n.Result = setTimeMaybe(d, n.Child[2].Result)
 	})
 
+	weekdayNoDirection := gp.Seq(weekday, gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
+		w := n.Child[0].Result.(time.Weekday)
+		var t time.Time
+		switch o.defaultDirection {
+		case future:
+			t = nextWeekdayFrom(ref, w)
+		case past:
+			t = prevWeekdayFrom(ref, w)
+		default:
+			panic(fmt.Sprintf("invalid default direction: %q", o.defaultDirection))
+		}
+		n.Result = setTimeMaybe(t, n.Child[1].Result)
+	})
+
 	return gp.AnyWithName("natural date",
 		now, today, yesterday, tomorrow,
 		ansiC, rubyDate, rfc1123Z, rfc3339,
@@ -625,7 +639,8 @@ func Parser(ref time.Time, options ...func(o *opts)) gp.Parser {
 		nextMo, prevMo,
 		lastWeekday, nextWeekday,
 		lastWeek, nextWeek,
-		colorMonth, monthNoYear)
+		colorMonth, monthNoYear,
+		weekdayNoDirection)
 }
 
 func setTimeMaybe(datePart time.Time, timePart any) time.Time {
