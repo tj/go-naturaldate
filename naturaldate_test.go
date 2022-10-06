@@ -166,13 +166,13 @@ func TestParse_goodDays(t *testing.T) {
 		{`last saturday`, prevWeekdayFrom(now, time.Saturday)},
 
 		// future weekdays
+		{`next sunday`, nextWeekdayFrom(now, time.Sunday)},
+		{`next monday`, nextWeekdayFrom(now, time.Monday)},
 		{`next tuesday`, nextWeekdayFrom(now, time.Tuesday)},
 		{`next wednesday`, nextWeekdayFrom(now, time.Wednesday)},
 		{`next thursday`, nextWeekdayFrom(now, time.Thursday)},
 		{`next friday`, nextWeekdayFrom(now, time.Friday)},
 		{`next saturday`, nextWeekdayFrom(now, time.Saturday)},
-		{`next sunday`, nextWeekdayFrom(now, time.Sunday)},
-		{`next monday`, nextWeekdayFrom(now, time.Monday)},
 
 		// months
 		{`last january`, prevMonth(now, time.January)},
