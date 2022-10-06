@@ -230,7 +230,59 @@ func TestParse_goodDays(t *testing.T) {
 	}
 }
 
+// TestParse_futurePast tests dates and times that are ambiguously in the past
+// or the future.
 func TestParse_futurePast(t *testing.T) {
+	tests := []struct {
+		input      string
+		wantFuture time.Time
+		wantPast   time.Time
+	}{
+		{
+			"december 20",
+			nextMonthDayTime(now, time.December, 20, 0, 0, 0),
+			prevMonthDayTime(now, time.December, 20, 0, 0, 0),
+		},
+		{
+			"thursday",
+			nextWeekdayFrom(now, time.Thursday),
+			prevWeekdayFrom(now, time.Thursday),
+		},
+		{
+			"december 20 at 9pm",
+			nextMonthDayTime(now, time.December, 20, 9, 0, 0),
+			prevMonthDayTime(now, time.December, 20, 9, 0, 0),
+		},
+		{
+			"thursday at 23:59",
+			setTime(nextWeekdayFrom(now, time.Thursday), 23, 59, 0, 0),
+			setTime(prevWeekdayFrom(now, time.Thursday), 23, 59, 0, 0),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			// future
+			got, err := Parse(tt.input, now, DefaultToFuture)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got != tt.wantFuture {
+				t.Errorf("Parse(..., Future) = %v, want %v", got, tt.wantFuture)
+			}
+
+			// past
+			got, err = Parse(tt.input, now, DefaultToPast)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got != tt.wantPast {
+				t.Errorf("Parse(..., Past) = %v, want %v", got, tt.wantPast)
+			}
+		})
+	}
+}
+
+func TestParse_monthOnly(t *testing.T) {
 	tests := []struct {
 		input string
 		month time.Month

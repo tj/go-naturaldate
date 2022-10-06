@@ -728,6 +728,12 @@ func truncateYear(t time.Time) time.Time {
 	return time.Date(t.Year(), 1, 1, 0, 0, 0, 0, t.Location())
 }
 
+// setTime takes the date from d and the time from the remaining args and
+// returns the combined result.
+func setTime(d time.Time, h, m, s, ns int) time.Time {
+	return time.Date(d.Year(), d.Month(), d.Day(), h, m, s, ns, d.Location())
+}
+
 // pass is something to call so you can put a breakpoint in an empty func.
 func pass() {
 }
