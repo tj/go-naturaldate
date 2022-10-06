@@ -124,14 +124,17 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	})
 
 	month := gp.AnyWithName("month", longMonth, shortMonthMaybeDot)
+
 	lastSpecificMonth := gp.Seq("last", month).Map(func(n *gp.Result) {
 		m := n.Child[1].Result.(time.Month)
 		n.Result = prevMonth(ref, m)
 	})
+
 	nextSpecificMonth := gp.Seq("next", month).Map(func(n *gp.Result) {
 		m := n.Child[1].Result.(time.Month)
 		n.Result = nextMonth(ref, m)
 	})
+
 	monthNum := gp.Regex(`[01]?\d\b`).Map(func(n *gp.Result) {
 		m, err := strconv.Atoi(n.Token)
 		if err != nil {
@@ -139,7 +142,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		}
 		n.Result = time.Month(m)
 	})
-	dayOfMonthNum := gp.Regex(`[0-3]?\d\b`).Map(func(n *gp.Result) {
+	dayOfMonthNum := gp.Regex(`[0-3]?\d`).Map(func(n *gp.Result) {
 		d, err := strconv.Atoi(n.Token)
 		if err != nil {
 			panic(fmt.Sprintf("parsing day of month: %v", err))
@@ -329,6 +332,22 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = time.Date(1, 1, 1, t.Hour(), t.Minute(), t.Second(), 0, z)
 	})
 
+	lastSpecificMonthDay := gp.Seq("last", month, dayOfMonth, gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
+		m := n.Child[1].Result.(time.Month)
+		d := n.Child[2].Result.(int)
+		t := prevMonth(ref, m)
+		t = time.Date(t.Year(), t.Month(), d, 0, 0, 0, 0, ref.Location())
+		n.Result = setTimeMaybe(t, n.Child[3].Result)
+	})
+
+	nextSpecificMonthDay := gp.Seq("next", month, dayOfMonth, gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
+		m := n.Child[1].Result.(time.Month)
+		d := n.Child[2].Result.(int)
+		t := nextMonth(ref, m)
+		t = time.Date(t.Year(), t.Month(), d, 0, 0, 0, 0, ref.Location())
+		n.Result = setTimeMaybe(t, n.Child[3].Result)
+	})
+
 	todayTime := gp.Seq("today", gp.Cut(), gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
 		d := truncateDay(ref)
 		n.Result = setTimeMaybe(d, n.Child[2].Result)
@@ -474,6 +493,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		xWeeksAgo, xWeeksFromNow,
 		monthsAgo, monthsFromNow,
 		xYearsAgo, xYearsFromToday,
+		lastSpecificMonthDay, nextSpecificMonthDay,
 		lastSpecificMonth, nextSpecificMonth,
 		lastYear, nextYear,
 		nextMo, prevMo,
