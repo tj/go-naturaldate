@@ -84,7 +84,7 @@ func TestParse_goodTimes(t *testing.T) {
 		{"Mon 02 Jan 2006 15:04:05 -0700", time.Date(2006, 1, 2, 15, 4, 5, 0, fixedZone(-7))},
 		// RFC3339
 		{"2006-01-02T15:04:05Z", time.Date(2006, 1, 2, 15, 4, 5, 0, time.UTC)},
-		{"1990-12-31T15:59:60-08:00", time.Date(1990, 12, 31, 15, 59, 60, 0, fixedZone(-8))},
+		{"1990-12-31T15:59:59-08:00", time.Date(1990, 12, 31, 15, 59, 59, 0, time.FixedZone("", -8*60*60))},
 
 		// days
 		{`one day ago`, now.Add(-24 * time.Hour)},

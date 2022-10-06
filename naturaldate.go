@@ -291,7 +291,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, z)
 	})
 
-	rfc3339 := gp.Regex(`[12]\d{3}-[01]\d-[0-3]\dt[0-2]\d:[0-5]\d:[0-6]\d(z|[-+]\d:\d\d)`).Map(func(n *gp.Result) {
+	rfc3339 := gp.Regex(`[12]\d{3}-[01]\d-[0-3]\dt[0-2]\d:[0-5]\d:[0-6]\d(z|[-+][01]\d:\d\d)`).Map(func(n *gp.Result) {
 		t, err := time.Parse(time.RFC3339, strings.ToUpper(n.Token))
 		if err != nil {
 			panic(fmt.Sprintf("parsing time in RFC3339 format: %v", err))
