@@ -541,6 +541,30 @@ func Parser(ref time.Time) gp.Parser {
 		n.Result = ref.Add(time.Duration(h) * time.Hour)
 	})
 
+	color := gp.AnyWithName("color",
+		"white", "red", "green", "blue", "gold", "purple", "orange", "pink",
+		"silver", "copper")
+
+	colorMonth := gp.Seq(color, month).Map(func(n *gp.Result) {
+		c := n.Child[0].Token
+		m := n.Child[1].Result.(time.Month)
+		color2delta := map[string]int{
+			"white":  0,
+			"red":    1,
+			"green":  2,
+			"blue":   3,
+			"gold":   4,
+			"purple": 5,
+			"orange": 6,
+			"pink":   7,
+			"silver": 8,
+			"copper": 9,
+		}
+		delta := color2delta[c]
+		t := nextMonth(ref, m)
+		n.Result = t.AddDate(delta, 0, 0)
+	})
+
 	return gp.AnyWithName("natural date",
 		now, today, yesterday, tomorrow,
 		ansiC, rubyDate, rfc1123Z, rfc3339,
@@ -557,7 +581,8 @@ func Parser(ref time.Time) gp.Parser {
 		lastYear, nextYear,
 		nextMo, prevMo,
 		lastWeekday, nextWeekday,
-		lastWeek, nextWeek)
+		lastWeek, nextWeek,
+		colorMonth)
 }
 
 func setTimeMaybe(datePart time.Time, timePart interface{}) time.Time {
