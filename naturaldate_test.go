@@ -250,8 +250,8 @@ func TestParse_futurePast(t *testing.T) {
 		},
 		{
 			"december 20 at 9pm",
-			nextMonthDayTime(now, time.December, 20, 9, 0, 0),
-			prevMonthDayTime(now, time.December, 20, 9, 0, 0),
+			nextMonthDayTime(now, time.December, 20, 21, 0, 0),
+			prevMonthDayTime(now, time.December, 20, 21, 0, 0),
 		},
 		{
 			"thursday at 23:59",

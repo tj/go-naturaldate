@@ -593,9 +593,9 @@ func Parser(ref time.Time, options ...func(o *opts)) gp.Parser {
 		n.Result = t.AddDate(delta, 0, 0)
 	})
 
-	justMonth := month.Map(func(n *gp.Result) {
+	monthNoYear := gp.Seq(month, gp.Maybe(dayOfMonth), gp.Maybe(atTimeWithMaybeZone)).Map(func(n *gp.Result) {
 		var d time.Time
-		m := n.Result.(time.Month)
+		m := n.Child[0].Result.(time.Month)
 		switch o.defaultDirection {
 		case future:
 			d = nextMonth(ref, m)
@@ -604,7 +604,8 @@ func Parser(ref time.Time, options ...func(o *opts)) gp.Parser {
 		default:
 			panic(fmt.Sprintf("invalid default direction: %q", o.defaultDirection))
 		}
-		n.Result = d
+		d = setDayMaybe(d, n.Child[1].Result)
+		n.Result = setTimeMaybe(d, n.Child[2].Result)
 	})
 
 	return gp.AnyWithName("natural date",
@@ -624,16 +625,24 @@ func Parser(ref time.Time, options ...func(o *opts)) gp.Parser {
 		nextMo, prevMo,
 		lastWeekday, nextWeekday,
 		lastWeek, nextWeek,
-		colorMonth, justMonth)
+		colorMonth, monthNoYear)
 }
 
-func setTimeMaybe(datePart time.Time, timePart interface{}) time.Time {
+func setTimeMaybe(datePart time.Time, timePart any) time.Time {
 	d := datePart
 	if timePart == nil {
 		return d
 	}
 	t := timePart.(time.Time)
 	return time.Date(d.Year(), d.Month(), d.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
+}
+
+func setDayMaybe(t time.Time, dayAsAny any) time.Time {
+	if dayAsAny == nil {
+		return t
+	}
+	d := dayAsAny.(int)
+	return time.Date(t.Year(), t.Month(), d, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
 }
 
 func fixedZoneHM(h, m int) *time.Location {
