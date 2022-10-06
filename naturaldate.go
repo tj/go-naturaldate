@@ -17,12 +17,22 @@ var day = time.Hour * 24
 // week duration.
 var week = time.Hour * 24 * 7
 
-// Parse query string.
+// Parse parses a string assumed to contain a date and possibly a time
+// in one of various formats.
 func Parse(s string, ref time.Time) (time.Time, error) {
 	gp.EnableLogging(os.Stdout)
-
 	s = strings.ToLower(s)
+	p := Parser(ref)
+	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("running parser: %w", err)
+	}
+	t := result.(time.Time)
+	return t, nil
+}
 
+// Parser returns a parser of dates with a given reference time called ref.
+func Parser(ref time.Time) gp.Parser {
 	now := gp.Bind("now", ref)
 	prevMo := gp.Seq("last", "month").Map(func(n *gp.Result) {
 		n.Result = truncateMonth(ref.AddDate(0, -1, 0))
@@ -491,7 +501,8 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		h := n.Child[0].Result.(int)
 		n.Result = ref.Add(time.Duration(h) * time.Hour)
 	})
-	p := gp.AnyWithName("natural date",
+
+	return gp.AnyWithName("natural date",
 		now, today, yesterday, tomorrow,
 		ansiC, rubyDate, rfc1123Z, rfc3339,
 		dateZone, dateTime,
@@ -508,12 +519,6 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		nextMo, prevMo,
 		lastWeekday, nextWeekday,
 		lastWeek, nextWeek)
-	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
-	if err != nil {
-		return time.Time{}, fmt.Errorf("running parser: %w", err)
-	}
-	t := result.(time.Time)
-	return t, nil
 }
 
 func setTimeMaybe(datePart time.Time, timePart interface{}) time.Time {
