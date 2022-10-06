@@ -200,16 +200,11 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = time.Date(1, 1, 1, 0, m, s, 0, ref.Location())
 	})
 
-	hour12MinuteSecond := gp.Seq(hour12, gp.Maybe(colonMinuteColonSecond), gp.Maybe(amPM)).Map(func(n *gp.Result) {
+	hour12MinuteSecond := gp.Seq(hour12, gp.Maybe(colonMinuteColonSecond), amPM).Map(func(n *gp.Result) {
 		h := n.Child[0].Result.(int)
-		c1 := n.Child[1].Result
-		m := 0
-		s := 0
-		if c1 != nil {
-			ms := c1.(time.Time)
-			m = ms.Minute()
-			s = ms.Second()
-		}
+		ms := n.Child[1].Result.(time.Time)
+		m := ms.Minute()
+		s := ms.Second()
 		if n.Child[2].Token == "pm" {
 			h += 12
 		}
