@@ -130,14 +130,14 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		m := n.Child[1].Result.(time.Month)
 		n.Result = nextMonth(ref, m)
 	})
-	monthNum := gp.Regex(`[01]?\d`).Map(func(n *gp.Result) {
+	monthNum := gp.Regex(`[01]?\d\b`).Map(func(n *gp.Result) {
 		m, err := strconv.Atoi(n.Token)
 		if err != nil {
 			panic(fmt.Sprintf("parsing month number: %v", err))
 		}
 		n.Result = time.Month(m)
 	})
-	dayOfMonthNum := gp.Regex(`[0-3]?\d`).Map(func(n *gp.Result) {
+	dayOfMonthNum := gp.Regex(`[0-3]?\d\b`).Map(func(n *gp.Result) {
 		d, err := strconv.Atoi(n.Token)
 		if err != nil {
 			panic(fmt.Sprintf("parsing day of month: %v", err))
@@ -151,7 +151,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = n.Child[0].Result
 	})
 
-	hour12 := gp.Regex(`[0-1]?\d`).Map(func(n *gp.Result) {
+	hour12 := gp.Regex(`[0-1]?\d\b`).Map(func(n *gp.Result) {
 		h, err := strconv.Atoi(n.Token)
 		if err != nil {
 			panic(fmt.Sprintf("parsing hour (12h clock): %v", err))
@@ -159,7 +159,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = h
 	})
 
-	hour24 := gp.Regex(`[0-2]?\d`).Map(func(n *gp.Result) {
+	hour24 := gp.Regex(`[0-2]?\d\b`).Map(func(n *gp.Result) {
 		h, err := strconv.Atoi(n.Token)
 		if err != nil {
 			panic(fmt.Sprintf("parsing hour (24h clock): %v", err))
@@ -167,7 +167,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = h
 	})
 
-	minute := gp.Regex(`[0-5]?\d`).Map(func(n *gp.Result) {
+	minute := gp.Regex(`[0-5]?\d\b`).Map(func(n *gp.Result) {
 		m, err := strconv.Atoi(n.Token)
 		if err != nil {
 			panic(fmt.Sprintf("parsing minute: %v", err))
@@ -176,7 +176,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	})
 	// Second can go up to 60 because of leap seconds, for example
 	// 1990-12-31T15:59:60-08:00.
-	second := gp.Regex(`[0-6]?\d`).Map(func(n *gp.Result) {
+	second := gp.Regex(`[0-6]?\d\b`).Map(func(n *gp.Result) {
 		s, err := strconv.Atoi(n.Token)
 		if err != nil {
 			panic(fmt.Sprintf("parsing second: %v", err))
@@ -230,7 +230,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 
 	hourMinuteSecond := gp.AnyWithName("h:m:s", hour12MinuteSecond, hour24MinuteSecond)
 
-	zoneHour := gp.Regex(`[-+][01]?\d`).Map(func(n *gp.Result) {
+	zoneHour := gp.Regex(`[-+][01]?\d\b`).Map(func(n *gp.Result) {
 		h, err := strconv.Atoi(n.Token)
 		if err != nil {
 			panic(fmt.Sprintf("parsing time zone hour: %v", err))
@@ -258,7 +258,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	zone := gp.AnyWithName("time zone", zoneUTC, zoneOffset, zoneZ).Map(func(n *gp.Result) {
 		pass()
 	})
-	year := gp.Regex(`[12]\d{3}`).Map(func(n *gp.Result) {
+	year := gp.Regex(`[12]\d{3}\b`).Map(func(n *gp.Result) {
 		y, err := strconv.Atoi(n.Token)
 		if err != nil {
 			panic(fmt.Sprintf("parsing year: %v", err))
@@ -280,7 +280,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		y := n.Child[5].Result.(int)
 		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, z)
 	})
-	rfc1123Z := gp.Seq(weekday, gp.Maybe(","), dayOfMonth, month, year, hourMinuteSecond, zone).Map(func(n *gp.Result) {
+	rfc1123Z := gp.Seq(weekday, gp.Maybe(","), dayOfMonth, month, year, hourMinuteSecond, gp.Cut(), zone).Map(func(n *gp.Result) {
 		d := n.Child[2].Result.(int)
 		m := n.Child[3].Result.(time.Month)
 		y := n.Child[4].Result.(int)
@@ -288,7 +288,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		z := n.Child[6].Result.(*time.Location)
 		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, z)
 	})
-	rfc3339 := gp.Seq(year, "-", monthNum, "-", dayOfMonth, "t", hourMinuteSecond, zone).Map(func(n *gp.Result) {
+	rfc3339 := gp.Seq(year, "-", monthNum, "-", dayOfMonthNum, "t", gp.Cut(), hourMinuteSecond, zone).Map(func(n *gp.Result) {
 		y := n.Child[0].Result.(int)
 		m := n.Child[2].Result.(time.Month)
 		d := n.Child[4].Result.(int)
