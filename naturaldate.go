@@ -17,12 +17,35 @@ var day = time.Hour * 24
 // week duration.
 var week = time.Hour * 24 * 7
 
+type direction int
+
+const (
+	future = iota
+	past
+)
+
+type opts struct {
+	defaultDirection direction
+}
+
+// DefaultToFuture sets the option to default to the future in case of
+// ambiguous dates.
+func DefaultToFuture(o *opts) {
+	o.defaultDirection = future
+}
+
+// DefaultToPast sets the option to default to the past in case of
+// ambiguous dates.
+func DefaultToPast(o *opts) {
+	o.defaultDirection = past
+}
+
 // Parse parses a string assumed to contain a date and possibly a time
 // in one of various formats.
-func Parse(s string, ref time.Time) (time.Time, error) {
+func Parse(s string, ref time.Time, opts ...func(o *opts)) (time.Time, error) {
 	gp.EnableLogging(os.Stdout)
 	s = strings.ToLower(s)
-	p := Parser(ref)
+	p := Parser(ref, opts...)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("running parser: %w", err)
@@ -32,7 +55,12 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 }
 
 // Parser returns a parser of dates with a given reference time called ref.
-func Parser(ref time.Time) gp.Parser {
+func Parser(ref time.Time, options ...func(o *opts)) gp.Parser {
+	var o opts
+	for _, optFunc := range options {
+		optFunc(&o)
+	}
+
 	now := gp.Bind("now", ref)
 
 	prevMo := gp.Seq("last", "month").Map(func(n *gp.Result) {

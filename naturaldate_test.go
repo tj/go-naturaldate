@@ -230,6 +230,72 @@ func TestParse_goodDays(t *testing.T) {
 	}
 }
 
+func TestParse_futurePast(t *testing.T) {
+	tests := []struct {
+		input string
+		month time.Month
+	}{
+		{"january", time.January},
+		{"february", time.February},
+		{"march", time.March},
+		{"april", time.April},
+		{"may", time.May},
+		{"june", time.June},
+		{"july", time.July},
+		{"august", time.August},
+		{"september", time.September},
+		{"october", time.October},
+		{"november", time.November},
+		{"december", time.December},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			// future
+			got, err := Parse(tt.input, now, DefaultToFuture)
+			if err != nil {
+				t.Errorf("Parse(..., DefaultToFuture) error = %v", err)
+				return
+			}
+			futureDate := nextMonth(now, tt.month)
+			if !reflect.DeepEqual(got, futureDate) {
+				t.Errorf("Parse(..., DefaultToFuture) got = %v, want %v", got, futureDate)
+			}
+
+			// past
+			got, err = Parse(tt.input, now, DefaultToPast)
+			if err != nil {
+				t.Errorf("Parse(..., DefaultToFuture) error = %v", err)
+				return
+			}
+			pastDate := prevMonth(now, tt.month)
+			if !reflect.DeepEqual(got, pastDate) {
+				t.Errorf("Parse(..., DefaultToFuture) got = %v, want %v", got, pastDate)
+			}
+		})
+	}
+}
+
+func TestParse_future(t *testing.T) {
+	tests := []struct {
+		input      string
+		wantOutput time.Time
+	}{
+		{"january", nextMonth(now, time.January)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			got, err := Parse(tt.input, now, DefaultToFuture)
+			if err != nil {
+				t.Errorf("Parse() error = %v", err)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.wantOutput) {
+				t.Errorf("Parse() got = %v, want %v", got, tt.wantOutput)
+			}
+		})
+	}
+}
+
 func location(locStr string) *time.Location {
 	l, err := time.LoadLocation(locStr)
 	if err != nil {
