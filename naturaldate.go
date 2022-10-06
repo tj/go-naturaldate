@@ -382,6 +382,16 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 
 	dateAsNumbers := gp.AnyWithName("date as numbers", ymdNumbers, dmyNumbers)
 
+	dateAsNumbersMaybeZone := gp.Seq(dateAsNumbers, gp.Maybe(zone)).Map(func(n *gp.Result) {
+		d := n.Child[0].Result.(time.Time)
+		c1 := n.Child[1].Result
+		z := d.Location()
+		if c1 != nil {
+			z = c1.(*time.Location)
+		}
+		n.Result = time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, z)
+	})
+
 	dateZone := gp.Seq(date, zone).Map(func(n *gp.Result) {
 		d := n.Child[0].Result.(time.Time)
 		z := n.Child[1].Result.(*time.Location)
@@ -457,7 +467,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		now, today, yesterday, tomorrow,
 		ansiC, rubyDate, rfc1123Z, rfc3339,
 		dateZone, dateTime,
-		dateAsNumbers,
+		dateAsNumbersMaybeZone,
 		xMinutesAgo, xMinutesFromNow,
 		xHoursAgo, xHoursFromNow,
 		xDaysAgo, xDaysFromNow,
