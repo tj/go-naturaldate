@@ -299,6 +299,13 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = time.Date(y, m, d, 0, 0, 0, 0, ref.Location())
 	})
 
+	// "my" here stands for "month, year"
+	myDate := gp.Seq(month, gp.Maybe(","), year).Map(func(n *gp.Result) {
+		m := n.Child[0].Result.(time.Month)
+		y := n.Child[2].Result.(int)
+		n.Result = time.Date(y, m, 1, 0, 0, 0, 0, ref.Location())
+	})
+
 	mdyDate := gp.Seq(month, gp.Maybe(dayOfMonth), gp.Maybe(","), year).Map(func(n *gp.Result) {
 		m := n.Child[0].Result.(time.Month)
 		d := 1
@@ -310,7 +317,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = time.Date(y, m, d, 0, 0, 0, 0, ref.Location())
 	})
 
-	date := gp.AnyWithName("date", dmyDate, mdyDate)
+	date := gp.AnyWithName("date", dmyDate, myDate, mdyDate)
 
 	atTimeWithMaybeZone := gp.Seq(gp.Maybe("at"), hourMinuteSecond, gp.Maybe(zone)).Map(func(n *gp.Result) {
 		t := n.Child[1].Result.(time.Time)
