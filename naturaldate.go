@@ -410,7 +410,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		h := n.Child[0].Result.(int)
 		n.Result = ref.Add(time.Duration(h) * time.Hour)
 	})
-	p := gp.AnyWithName("datetime",
+	p := gp.AnyWithName("natural date",
 		now, today, yesterday, tomorrow,
 		ansiC, rubyDate, rfc1123Z, rfc3339, dateTime,
 		xMinutesAgo, xMinutesFromNow,
