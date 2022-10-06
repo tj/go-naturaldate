@@ -60,7 +60,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = num
 	})
 	number := gp.AnyWithName("number", one, an, a, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, numeral).Map(func(n *gp.Result) {
-		fmt.Println("number bp")
+		pass()
 	})
 	months := gp.Regex(`months?`)
 	monthsAgo := gp.Seq(number, months, "ago").Map(func(n *gp.Result) {
@@ -145,7 +145,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		n.Result = d
 	})
 	dayOfMonthEnding := gp.Regex(`(st|nd|rd|th)`).Map(func(n *gp.Result) {
-		fmt.Println("bp")
+		pass()
 	})
 	dayOfMonth := gp.Seq(dayOfMonthNum, gp.Maybe(dayOfMonthEnding)).Map(func(n *gp.Result) {
 		n.Result = n.Child[0].Result
@@ -256,7 +256,7 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 	})
 	zoneZ := gp.Bind("z", time.UTC)
 	zone := gp.AnyWithName("time zone", zoneUTC, zoneOffset, zoneZ).Map(func(n *gp.Result) {
-		fmt.Println("bp")
+		pass()
 	})
 	year := gp.Regex(`[12]\d{3}`).Map(func(n *gp.Result) {
 		y, err := strconv.Atoi(n.Token)
@@ -532,4 +532,8 @@ func truncateMonth(t time.Time) time.Time {
 // truncateYear returns a date truncated to the year.
 func truncateYear(t time.Time) time.Time {
 	return time.Date(t.Year(), 1, 1, 0, 0, 0, 0, t.Location())
+}
+
+// pass is something to call so you can put a breakpoint in an empty func.
+func pass() {
 }
