@@ -295,12 +295,17 @@ func Parse(s string, ref time.Time) (time.Time, error) {
 		z := n.Child[7].Result.(*time.Location)
 		n.Result = time.Date(y, m, d, t.Hour(), t.Minute(), t.Second(), 0, z)
 	})
-	date := gp.Seq(month, dayOfMonth, gp.Maybe(","), year).Map(func(n *gp.Result) {
+	date := gp.Seq(month, gp.Maybe(dayOfMonth), gp.Maybe(","), year).Map(func(n *gp.Result) {
 		m := n.Child[0].Result.(time.Month)
-		d := n.Child[1].Result.(int)
+		d := 1
+		c1 := n.Child[1].Result
+		if c1 != nil {
+			d = c1.(int)
+		}
 		y := n.Child[3].Result.(int)
 		n.Result = time.Date(y, m, d, 0, 0, 0, 0, ref.Location())
 	})
+
 	atTimeWithMaybeZone := gp.Seq(gp.Maybe("at"), hourMinuteSecond, gp.Maybe(zone)).Map(func(n *gp.Result) {
 		t := n.Child[1].Result.(time.Time)
 		z := ref.Location()
