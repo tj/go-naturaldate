@@ -203,6 +203,19 @@ func TestParse_goodDays(t *testing.T) {
 		{"31-3-2014 UTC-8", time.Date(2014, 3, 31, 0, 0, 0, 0, fixedZone(-8))},
 		{"31/3/2014", time.Date(2014, 3, 31, 0, 0, 0, 0, now.Location())},
 		{"31-3-2014", time.Date(2014, 3, 31, 0, 0, 0, 0, now.Location())},
+
+		// color month
+		// http://www.jdawiseman.com/papers/trivia/futures.html
+		{"white october", nextMonth(now, time.October)},
+		{"red october", nextMonth(now, time.October).AddDate(1, 0, 0)},
+		{"green october", nextMonth(now, time.October).AddDate(2, 0, 0)},
+		{"blue october", nextMonth(now, time.October).AddDate(3, 0, 0)},
+		{"gold october", nextMonth(now, time.October).AddDate(4, 0, 0)},
+		{"purple october", nextMonth(now, time.October).AddDate(5, 0, 0)},
+		{"orange october", nextMonth(now, time.October).AddDate(6, 0, 0)},
+		{"pink october", nextMonth(now, time.October).AddDate(7, 0, 0)},
+		{"silver october", nextMonth(now, time.October).AddDate(8, 0, 0)},
+		{"copper october", nextMonth(now, time.October).AddDate(9, 0, 0)},
 	}
 
 	for _, c := range cases {
