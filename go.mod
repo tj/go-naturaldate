@@ -1,4 +1,4 @@
-module github.com/ijt/go-naturaldate
+module github.com/ijt/go-anytime
 
 go 1.18
 

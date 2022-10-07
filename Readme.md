@@ -1,16 +1,16 @@
-# Go Natural Date (ijt fork)
+# Go Anytime
 
-[![CircleCI](https://circleci.com/gh/ijt/go-naturaldate/tree/master.svg?style=shield)](https://circleci.com/gh/ijt/go-naturaldate/tree/master)
-[![Go Report Card](https://goreportcard.com/badge/github.com/ijt/go-naturaldate)](https://goreportcard.com/report/github.com/ijt/go-naturaldate)
-[![GoDoc](https://godoc.org/github.com/tj/go-naturaldate?status.svg)](https://godoc.org/github.com/tj/go-naturaldate)
+[![CircleCI](https://circleci.com/gh/ijt/go-anytime/tree/master.svg?style=shield)](https://circleci.com/gh/ijt/go-naturaldate/tree/master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ijt/go-anytime)](https://goreportcard.com/report/github.com/ijt/go-naturaldate)
+[![GoDoc](https://godoc.org/github.com/ijt/go-anytime?status.svg)](https://godoc.org/github.com/ijt/go-anytime)
 ![](https://img.shields.io/badge/license-MIT-blue.svg)
 
-Natural date time parsing for Go. This package was forked from github.com/tj/go-naturaldate with the following goals:
+Natural date time parsing for Go. This package was originally forked from
+github.com/tj/go-naturaldate but has diverged so much that it needed a new name
+to avoid confusion. Here are the largest differences:
 
-1. Support use within parser combinator packages such as github.com/ijt/goparsify. As part of this, parsing must be more strict: the date must come at the beginning of the string although there can be additional text after it. Also, the substring matched by the parser must be made available.
-2. Minimize the amount of ambiguity accepted. Instead of assuming that "Tuesday" means last Tuesday or next Tuesday as in github.com/tj/go-naturaldate, just require additional context so it's clear.
-
-Both of those goals appear to have been met.
+1. The `go-anytime` module is written in terms of the `github.com/ijt/goparsify` parser combinator module, rather than the `github.com/pointlander/peg` module. That made its development and debugging easier, and also means that its parsers can be use within other parsers that use `ijt/goparsify`.
+2. Ranges can be parsed using `ParseRange` or `RangeParser`, for example `"from 3 feb 2022 until 6 oct 2022"`.
 
 ## Examples
 
@@ -57,4 +57,4 @@ Here are some examples of the types of expressions currently supported:
 - January
 - december 20
 - thursday at 23:59
-- See the [tests](./naturaldate_test.go) for more examples
+- See the [tests](./anytime_test.go) for more examples

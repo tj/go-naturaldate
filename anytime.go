@@ -1,5 +1,5 @@
-// Package naturaldate provides natural date time parsing.
-package naturaldate
+// Package anytime provides natural date time parsing.
+package anytime
 
 import (
 	"fmt"

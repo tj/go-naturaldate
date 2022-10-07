@@ -1,4 +1,4 @@
-package naturaldate
+package anytime
 
 import (
 	"fmt"
