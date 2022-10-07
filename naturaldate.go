@@ -656,7 +656,12 @@ func ParseRange(s string, ref time.Time, opts ...func(o *opts)) (Range, error) {
 }
 
 func RangeParser(ref time.Time, options ...func(o *opts)) gp.Parser {
-	return gp.Seq("from", "to")
+	return gp.Seq(gp.Maybe("from"), Parser(ref, options...), "to", Parser(ref, options...)).Map(func(n *gp.Result) {
+		n.Result = Range{
+			Start: n.Child[1].Result.(time.Time),
+			End:   n.Child[3].Result.(time.Time),
+		}
+	})
 }
 
 func setTimeMaybe(datePart time.Time, timePart any) time.Time {
