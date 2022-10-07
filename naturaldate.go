@@ -3,7 +3,6 @@ package naturaldate
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -37,7 +36,6 @@ func DefaultToPast(o *opts) {
 // Parse parses a string assumed to contain a date and possibly a time
 // in one of various formats.
 func Parse(s string, ref time.Time, opts ...func(o *opts)) (time.Time, error) {
-	gp.EnableLogging(os.Stdout)
 	s = strings.ToLower(s)
 	p := Parser(ref, opts...)
 	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
@@ -635,6 +633,30 @@ func Parser(ref time.Time, options ...func(o *opts)) gp.Parser {
 		lastWeek, nextWeek,
 		colorMonth, monthNoYear,
 		weekdayNoDirection)
+}
+
+// Range is a time range.
+type Range struct {
+	// Start is the start of the range.
+	Start time.Time
+
+	// End is the end of the range.
+	End time.Time
+}
+
+func ParseRange(s string, ref time.Time, opts ...func(o *opts)) (Range, error) {
+	s = strings.ToLower(s)
+	p := RangeParser(ref, opts...)
+	result, err := gp.Run(p, s, gp.UnicodeWhitespace)
+	if err != nil {
+		return Range{}, fmt.Errorf("running range parser: %w", err)
+	}
+	r := result.(Range)
+	return r, nil
+}
+
+func RangeParser(ref time.Time, options ...func(o *opts)) gp.Parser {
+	return gp.Seq("from", "to")
 }
 
 func setTimeMaybe(datePart time.Time, timePart any) time.Time {
