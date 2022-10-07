@@ -533,13 +533,16 @@ func TestParseRange(t *testing.T) {
 			},
 		},
 		// from A until B
+		{
+			"from 3 feb 2022 until 6 oct 2022",
+			Range{
+				Start: time.Date(2022, 2, 3, 0, 0, 0, 0, now.Location()),
+				End:   time.Date(2022, 10, 6, 0, 0, 0, 0, now.Location()),
+			},
+		},
 	}
 	for _, tt := range tests {
-		name := "empty"
-		if tt.input != "" {
-			name = tt.input
-		}
-		t.Run(name, func(t *testing.T) {
+		t.Run(tt.input, func(t *testing.T) {
 			got, err := ParseRange(tt.input, now, DefaultToFuture)
 			if err != nil {
 				t.Errorf("ParseRange() error = %v", err)
