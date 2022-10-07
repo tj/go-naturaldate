@@ -14,7 +14,7 @@ to avoid confusion. Here are the largest differences:
 
 ## Examples
 
-Here are some examples of the types of expressions currently supported:
+Here are some examples of expressions that can be parsed by `anytime.Parse()` or `anytime.Parser`:
 
 - now
 - today
@@ -58,3 +58,12 @@ Here are some examples of the types of expressions currently supported:
 - december 20
 - thursday at 23:59
 - See the [tests](./anytime_test.go) for more examples
+
+## Range examples
+
+Here are some examples of expressions that can be parsed by `anytime.ParseRange()` or `anytime.RangeParser`:
+
+- from 3 feb 2022 to 6 oct 2022
+- 3 feb 2022 to 6 oct 2022
+- from 3 feb 2022 until 6 oct 2022
+- from tuesday at 5pm -12:00 until thursday 23:52 +14:00
