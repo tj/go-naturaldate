@@ -525,6 +525,13 @@ func TestParseRange(t *testing.T) {
 			},
 		},
 		// A to B
+		{
+			"3 feb 2022 to 6 oct 2022",
+			Range{
+				Start: time.Date(2022, 2, 3, 0, 0, 0, 0, now.Location()),
+				End:   time.Date(2022, 10, 6, 0, 0, 0, 0, now.Location()),
+			},
+		},
 		// from A until B
 	}
 	for _, tt := range tests {
