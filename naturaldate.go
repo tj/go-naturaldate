@@ -780,6 +780,11 @@ func setTime(d time.Time, h, m, s, ns int) time.Time {
 	return time.Date(d.Year(), d.Month(), d.Day(), h, m, s, ns, d.Location())
 }
 
+// setLocation returns the given time t in location loc.
+func setLocation(t time.Time, loc *time.Location) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), loc)
+}
+
 // pass is something to call so you can put a breakpoint in an empty func.
 func pass() {
 }

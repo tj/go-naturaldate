@@ -540,6 +540,13 @@ func TestParseRange(t *testing.T) {
 				End:   time.Date(2022, 10, 6, 0, 0, 0, 0, now.Location()),
 			},
 		},
+		{
+			"from tuesday at 5pm -12:00 until thursday 23:52 +14:00",
+			Range{
+				Start: setLocation(setTime(nextWeekdayFrom(now, time.Tuesday), 12+5, 0, 0, 0), fixedZone(-12)),
+				End:   setLocation(setTime(nextWeekdayFrom(now, time.Thursday), 23, 52, 0, 0), fixedZone(14)),
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
