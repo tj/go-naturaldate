@@ -311,12 +311,12 @@ Ordinal
 Word
   <- [a-z]+ _
 
-YEARS      <- 'year' 's'? _
-MONTHS     <- 'month' 's'? _
-WEEKS      <- 'week' 's'? _
-DAYS       <- 'day' 's'? _
-HOURS      <- 'hour' 's'? _
-MINUTES    <- 'minute' 's'? _
+YEARS      <- 'year' 's'? _ / 'yr' 's'?_
+MONTHS     <- 'month' 's'? _ / 'mo' _
+WEEKS      <- 'week' 's'? _ / 'wk' _
+DAYS       <- 'day' 's'? _ 
+HOURS      <- 'hour' 's'? _ / 'h' 'r'? 's'?_
+MINUTES    <- 'minute' 's'? _ / 'min' 's'?_
 YESTERDAY  <- 'yesterday' _
 TOMORROW   <- 'tomorrow' _
 TODAY      <- 'today' _
