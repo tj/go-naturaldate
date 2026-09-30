@@ -566,19 +566,19 @@ func (p *parser) Execute() {
 
 		case ruleAction20:
 
-			p.t = p.t.AddDate(0, -p.number, 0)
+			p.t = addMonths(p.t, -p.number)
 
 		case ruleAction21:
 
-			p.t = p.t.AddDate(0, p.number, 0)
+			p.t = addMonths(p.t, p.number)
 
 		case ruleAction22:
 
-			p.t = p.t.AddDate(0, -p.number, 0)
+			p.t = addMonths(p.t, -p.number)
 
 		case ruleAction23:
 
-			p.t = p.t.AddDate(0, p.number, 0)
+			p.t = addMonths(p.t, p.number)
 
 		case ruleAction24:
 
@@ -598,19 +598,19 @@ func (p *parser) Execute() {
 
 		case ruleAction27:
 
-			p.t = p.t.AddDate(-p.number, 0, 0)
+			p.t = addYears(p.t, -p.number)
 
 		case ruleAction28:
 
-			p.t = p.t.AddDate(p.number, 0, 0)
+			p.t = addYears(p.t, p.number)
 
 		case ruleAction29:
 
-			p.t = p.t.AddDate(-p.number, 0, 0)
+			p.t = addYears(p.t, -p.number)
 
 		case ruleAction30:
 
-			p.t = p.t.AddDate(p.number, 0, 0)
+			p.t = addYears(p.t, p.number)
 
 		case ruleAction31:
 
@@ -5158,19 +5158,19 @@ func (p *parser) Init(options ...func(*parser) error) error {
 		 }> */
 		nil,
 		/* 65 Action20 <- <{
-		   p.t = p.t.AddDate(0, -p.number, 0)
+		   p.t = addMonths(p.t, -p.number)
 		 }> */
 		nil,
 		/* 66 Action21 <- <{
-		   p.t = p.t.AddDate(0, p.number, 0)
+		   p.t = addMonths(p.t, p.number)
 		 }> */
 		nil,
 		/* 67 Action22 <- <{
-		   p.t = p.t.AddDate(0, -p.number, 0)
+		   p.t = addMonths(p.t, -p.number)
 		 }> */
 		nil,
 		/* 68 Action23 <- <{
-		   p.t = p.t.AddDate(0, p.number, 0)
+		   p.t = addMonths(p.t, p.number)
 		 }> */
 		nil,
 		/* 69 Action24 <- <{
@@ -5190,19 +5190,19 @@ func (p *parser) Init(options ...func(*parser) error) error {
 		 }> */
 		nil,
 		/* 72 Action27 <- <{
-		   p.t = p.t.AddDate(-p.number, 0, 0)
+		   p.t = addYears(p.t, -p.number)
 		 }> */
 		nil,
 		/* 73 Action28 <- <{
-		   p.t = p.t.AddDate(p.number, 0, 0)
+		   p.t = addYears(p.t, p.number)
 		 }> */
 		nil,
 		/* 74 Action29 <- <{
-		   p.t = p.t.AddDate(-p.number, 0, 0)
+		   p.t = addYears(p.t, -p.number)
 		 }> */
 		nil,
 		/* 75 Action30 <- <{
-		   p.t = p.t.AddDate(p.number, 0, 0)
+		   p.t = addYears(p.t, p.number)
 		 }> */
 		nil,
 		/* 76 Action31 <- <{

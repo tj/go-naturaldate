@@ -94,9 +94,7 @@ func nextMonth(t time.Time, month time.Month) time.Time {
 	if month-t.Month() <= 0 {
 		y++
 	}
-	_, _, day := t.Date()
-	hour, min, sec := t.Clock()
-	return time.Date(y, month, day, hour, min, sec, 0, t.Location())
+	return clampDate(t, y, month)
 }
 
 // prevMonth returns the next month relative to time t.
@@ -105,9 +103,37 @@ func prevMonth(t time.Time, month time.Month) time.Time {
 	if t.Month()-month <= 0 {
 		y--
 	}
+	return clampDate(t, y, month)
+}
+
+// addMonths moves t by months and keeps the day when that month has it.
+func addMonths(t time.Time, months int) time.Time {
+	y, m, _ := t.Date()
+	idx := int(m) - 1 + months
+	y += idx / 12
+	idx %= 12
+	if idx < 0 {
+		idx += 12
+		y--
+	}
+	return clampDate(t, y, time.Month(idx+1))
+}
+
+// addYears moves t by years and keeps February 29 on a later leap day.
+func addYears(t time.Time, years int) time.Time {
+	return clampDate(t, t.Year()+years, t.Month())
+}
+
+// clampDate returns t's clock on year and month. A day that month does not
+// have, such as January 31 moved to February, becomes the last day of month.
+func clampDate(t time.Time, year int, month time.Month) time.Time {
 	_, _, day := t.Date()
 	hour, min, sec := t.Clock()
-	return time.Date(y, month, day, hour, min, sec, 0, t.Location())
+	last := time.Date(year, month+1, 0, hour, min, sec, 0, t.Location()).Day()
+	if day > last {
+		day = last
+	}
+	return time.Date(year, month, day, hour, min, sec, 0, t.Location())
 }
 
 // truncateDay returns a date truncated to the day.

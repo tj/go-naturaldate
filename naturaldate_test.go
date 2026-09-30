@@ -11,6 +11,54 @@ import (
 // base time.
 var base = time.Unix(1574687238, 0).UTC()
 
+func TestMonthAndYearStayInTheNamedMonth(t *testing.T) {
+	jan31 := time.Date(2023, time.January, 31, 15, 4, 5, 0, time.UTC)
+	got, err := Parse("february", jan31)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Year() != 2022 || got.Month() != time.February || got.Day() != 28 {
+		t.Fatalf("february: got %s", got)
+	}
+	got, err = Parse("february", jan31, WithDirection(Future))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Year() != 2023 || got.Month() != time.February || got.Day() != 28 {
+		t.Fatalf("future february: got %s", got)
+	}
+	got, err = Parse("1 month from now", jan31)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Year() != 2023 || got.Month() != time.February || got.Day() != 28 {
+		t.Fatalf("1 month: got %s", got)
+	}
+	jan31Leap := time.Date(2024, time.January, 31, 15, 4, 5, 0, time.UTC)
+	got, err = Parse("1 month from now", jan31Leap)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Year() != 2024 || got.Month() != time.February || got.Day() != 29 {
+		t.Fatalf("leap month: got %s", got)
+	}
+	leap := time.Date(2020, time.February, 29, 15, 4, 5, 0, time.UTC)
+	got, err = Parse("1 year from now", leap)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Year() != 2021 || got.Month() != time.February || got.Day() != 28 {
+		t.Fatalf("1 year: got %s", got)
+	}
+	got, err = Parse("4 years from now", leap)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Year() != 2024 || got.Month() != time.February || got.Day() != 29 {
+		t.Fatalf("4 years: got %s", got)
+	}
+}
+
 // pastCases are test cases for the past direction.
 var pastCases = []struct {
 	Input  string

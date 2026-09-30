@@ -117,19 +117,19 @@ RelativeWeeks
 RelativeMonth
   <- Number MONTHS AGO
     {
-      p.t = p.t.AddDate(0, -p.number, 0)
+      p.t = addMonths(p.t, -p.number)
     }
   / (Number MONTHS FROM_NOW / In Number? MONTHS FROM_NOW?)
     {
-      p.t = p.t.AddDate(0, p.number, 0)
+      p.t = addMonths(p.t, p.number)
     }
   / Last Number? MONTHS
     {
-      p.t = p.t.AddDate(0, -p.number, 0)
+      p.t = addMonths(p.t, -p.number)
     }
   / Next Number? MONTHS
     {
-      p.t = p.t.AddDate(0, p.number, 0)
+      p.t = addMonths(p.t, p.number)
     }
   / LAST Month
     {
@@ -151,19 +151,19 @@ RelativeMonth
 RelativeYear
   <- Number YEARS AGO
     {
-      p.t = p.t.AddDate(-p.number, 0, 0)
+      p.t = addYears(p.t, -p.number)
     }
   / (Number YEARS FROM_NOW / In Number? YEARS FROM_NOW?)
     {
-      p.t = p.t.AddDate(p.number, 0, 0)
+      p.t = addYears(p.t, p.number)
     }
   / Last Number? YEARS
     {
-      p.t = p.t.AddDate(-p.number, 0, 0)
+      p.t = addYears(p.t, -p.number)
     }
   / Next Number? YEARS
     {
-      p.t = p.t.AddDate(p.number, 0, 0)
+      p.t = addYears(p.t, p.number)
     }
   / LAST YEARS
     {
